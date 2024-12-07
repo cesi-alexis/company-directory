@@ -1,3 +1,4 @@
+using API.Services;
 using Data.context;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -13,7 +14,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<BusinessDirectoryDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddScoped<EmployeeService>();
+builder.Services.AddScoped<SiteService>();
+builder.Services.AddScoped<ServiceService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
