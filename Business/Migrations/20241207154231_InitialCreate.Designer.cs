@@ -24,7 +24,7 @@ namespace Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Data.Entities.Employee", b =>
+            modelBuilder.Entity("Data.Entities.Worker", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -60,16 +60,16 @@ namespace Data.Migrations
                     b.Property<int>("ServiceId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SiteId")
+                    b.Property<int>("LocationId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ServiceId");
 
-                    b.HasIndex("SiteId");
+                    b.HasIndex("LocationId");
 
-                    b.ToTable("Employees");
+                    b.ToTable("Workers");
                 });
 
             modelBuilder.Entity("Data.Entities.Service", b =>
@@ -90,7 +90,7 @@ namespace Data.Migrations
                     b.ToTable("Services");
                 });
 
-            modelBuilder.Entity("Data.Entities.Site", b =>
+            modelBuilder.Entity("Data.Entities.Location", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -105,36 +105,36 @@ namespace Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sites");
+                    b.ToTable("Locations");
                 });
 
-            modelBuilder.Entity("Data.Entities.Employee", b =>
+            modelBuilder.Entity("Data.Entities.Worker", b =>
                 {
                     b.HasOne("Data.Entities.Service", "Service")
-                        .WithMany("Employees")
+                        .WithMany("Workers")
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Data.Entities.Site", "Site")
-                        .WithMany("Employees")
-                        .HasForeignKey("SiteId")
+                    b.HasOne("Data.Entities.Location", "Location")
+                        .WithMany("Workers")
+                        .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Service");
 
-                    b.Navigation("Site");
+                    b.Navigation("Location");
                 });
 
             modelBuilder.Entity("Data.Entities.Service", b =>
                 {
-                    b.Navigation("Employees");
+                    b.Navigation("Workers");
                 });
 
-            modelBuilder.Entity("Data.Entities.Site", b =>
+            modelBuilder.Entity("Data.Entities.Location", b =>
                 {
-                    b.Navigation("Employees");
+                    b.Navigation("Workers");
                 });
 #pragma warning restore 612, 618
         }

@@ -3,7 +3,7 @@ using System.Text.Json;
 using RestSharp;
 using Xunit;
 
-namespace APITests
+namespace TestsAPI
 {
     public abstract class TestBase
     {

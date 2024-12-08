@@ -7,82 +7,82 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SiteController : ControllerBase
+    public class LocationController : ControllerBase
     {
-        private readonly SiteService _siteService;
+        private readonly LocationService _locationService;
 
-        public SiteController(SiteService siteService)
+        public LocationController(LocationService locationService)
         {
-            _siteService = siteService;
+            _locationService = locationService;
         }
 
-        // GET: api/Site
+        // GET: api/Location
         [HttpGet]
-        public async Task<IActionResult> GetSites(
+        public async Task<IActionResult> GetLocations(
             [FromQuery] string? fields = null,
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = Constants.MAX_PAGES)
         {
             return await ResponseUtils.HandleResponseAsync(async () =>
             {
-                var (sites, totalCount) = await _siteService.GetFilteredSitesAsync(fields, pageNumber, pageSize);
+                var (locations, totalCount) = await _locationService.GetFilteredLocationsAsync(fields, pageNumber, pageSize);
                 return new
                 {
                     PageNumber = pageNumber,
                     PageSize = pageSize,
                     TotalCount = totalCount,
                     TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
-                    Sites = sites
+                    Locations = locations
                 };
             });
         }
 
-        // GET: api/Site/{id}
+        // GET: api/Location/{id}
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetSite(int id)
+        public async Task<IActionResult> GetLocation(int id)
         {
-            return await ResponseUtils.HandleResponseAsync(async () => await _siteService.GetSiteByIdAsync(id));
+            return await ResponseUtils.HandleResponseAsync(async () => await _locationService.GetLocationByIdAsync(id));
         }
 
-        // PUT: api/Site/{id}
+        // PUT: api/Location/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSite(int id, Site site)
+        public async Task<IActionResult> PutLocation(int id, Location location)
         {
             return await ResponseUtils.HandleResponseAsync(async () =>
             {
-                await _siteService.UpdateSiteAsync(id, site);
+                await _locationService.UpdateLocationAsync(id, location);
                 return NoContent();
             });
         }
 
-        // POST: api/Site
+        // POST: api/Location
         [HttpPost]
-        public async Task<IActionResult> PostSite(Site site)
+        public async Task<IActionResult> PostLocation(Location location)
         {
             return await ResponseUtils.HandleResponseAsync(async () =>
             {
-                var createdSite = await _siteService.CreateSiteAsync(site);
-                return CreatedAtAction(nameof(GetSite), new { id = createdSite.Id }, createdSite);
+                var createdLocation = await _locationService.CreateLocationAsync(location);
+                return CreatedAtAction(nameof(GetLocation), new { id = createdLocation.Id }, createdLocation);
             });
         }
 
-        // DELETE: api/Site/{id}
+        // DELETE: api/Location/{id}
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteSite(int id)
+        public async Task<IActionResult> DeleteLocation(int id)
         {
             return await ResponseUtils.HandleResponseAsync(async () =>
             {
-                await _siteService.DeleteSiteAsync(id);
+                await _locationService.DeleteLocationAsync(id);
                 return NoContent();
             });
         }
 
         [HttpGet("exists/{city}")]
-        public async Task<IActionResult> SiteExists(string city)
+        public async Task<IActionResult> LocationExists(string city)
         {
             return await ResponseUtils.HandleResponseAsync(async () =>
             {
-                var exists = await _siteService.SiteExistsAsync(city);
+                var exists = await _locationService.LocationExistsAsync(city);
                 return new { Exists = exists };
             });
         }

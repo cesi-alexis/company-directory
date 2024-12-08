@@ -11,8 +11,8 @@ namespace Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateIndex(
-                name: "IX_Employees_Email",
-                table: "Employees",
+                name: "IX_Workers_Email",
+                table: "Workers",
                 column: "Email",
                 unique: true);
         }
@@ -21,8 +21,8 @@ namespace Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex(
-                name: "IX_Employees_Email",
-                table: "Employees");
+                name: "IX_Workers_Email",
+                table: "Workers");
         }
     }
 }

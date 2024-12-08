@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Data.Entities
 {
-    public class Employee
+    public class Worker
     {
         [Key]
         public int Id { get; set; }
@@ -44,9 +44,9 @@ namespace Data.Entities
         public Service? Service { get; set; } = null!;
 
         [Required]
-        public int SiteId { get; set; }
+        public int LocationId { get; set; }
 
-        [ForeignKey("SiteId")]
-        public Site? Site { get; set; } = null!;
+        [ForeignKey("LocationId")]
+        public Location? Location { get; set; } = null!;
     }
 }

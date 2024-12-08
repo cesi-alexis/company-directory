@@ -17,25 +17,25 @@ Voici un **guide de test complet pour l'API**, organisé par endpoint et adapté
 
 ---
 
-### Endpoints pour **Employés** (`/api/Employees`)
+### Endpoints pour **Employés** (`/api/Workers`)
 
-#### **GET /api/Employees**
+#### **GET /api/Workers**
 - **Objectif** : Récupérer la liste de tous les employés.
 - **Étapes** :
-  1. Créer une requête GET vers `localhost:7055/api/Employees`.
+  1. Créer une requête GET vers `localhost:7055/api/Workers`.
   2. Exécuter la requête.
 - **Résultats attendus** :
   - Code HTTP : `200`.
-  - Contenu : Liste JSON contenant les objets `Employee` avec les champs :
+  - Contenu : Liste JSON contenant les objets `Worker` avec les champs :
     - `id` (entier)
     - `firstName`, `lastName`, `email` (chaînes)
     - `phoneFixed`, `phoneMobile` (chaînes au format téléphone)
     - `serviceId`, `siteId` (entiers).
 
-#### **POST /api/Employees**
+#### **POST /api/Workers**
 - **Objectif** : Créer un nouvel employé.
 - **Étapes** :
-  1. Créer une requête POST vers `localhost:7055/api/Employees`.
+  1. Créer une requête POST vers `localhost:7055/api/Workers`.
   2. Ajouter le corps suivant dans l'onglet `Body` :
   ```json
   {
@@ -53,19 +53,19 @@ Voici un **guide de test complet pour l'API**, organisé par endpoint et adapté
   - Code HTTP : `200` ou `201`.
   - Contenu : L'objet créé avec un `id` généré.
 
-#### **GET /api/Employees/{id}**
+#### **GET /api/Workers/{id}**
 - **Objectif** : Récupérer les détails d'un employé spécifique.
 - **Étapes** :
-  1. Créer une requête GET vers `localhost:7055/api/Employees/1` (remplacez `1` par un `id` valide).
+  1. Créer une requête GET vers `localhost:7055/api/Workers/1` (remplacez `1` par un `id` valide).
   2. Exécuter la requête.
 - **Résultats attendus** :
   - Code HTTP : `200`.
-  - Contenu : Un objet `Employee` correspondant à l'ID.
+  - Contenu : Un objet `Worker` correspondant à l'ID.
 
-#### **PUT /api/Employees/{id}**
+#### **PUT /api/Workers/{id}**
 - **Objectif** : Modifier les détails d'un employé existant.
 - **Étapes** :
-  1. Créer une requête PUT vers `localhost:7055/api/Employees/1`.
+  1. Créer une requête PUT vers `localhost:7055/api/Workers/1`.
   2. Ajouter le corps suivant :
   ```json
   {
@@ -84,10 +84,10 @@ Voici un **guide de test complet pour l'API**, organisé par endpoint et adapté
   - Code HTTP : `200`.
   - Contenu : L'objet mis à jour.
 
-#### **DELETE /api/Employees/{id}**
+#### **DELETE /api/Workers/{id}**
 - **Objectif** : Supprimer un employé.
 - **Étapes** :
-  1. Créer une requête DELETE vers `localhost:7055/api/Employees/1`.
+  1. Créer une requête DELETE vers `localhost:7055/api/Workers/1`.
   2. Exécuter la requête.
 - **Résultats attendus** :
   - Code HTTP : `200`.
@@ -159,14 +159,14 @@ Voici un **guide de test complet pour l'API**, organisé par endpoint et adapté
 
 ---
 
-### Endpoints pour **Sites** (`/api/Site`)
+### Endpoints pour **Locations** (`/api/Location`)
 
-#### **GET /api/Site**
+#### **GET /api/Location**
 - **Objectif** : Récupérer la liste des sites.
 - **Étapes** :
   - Suivez les mêmes étapes que pour **GET /api/Service**.
 
-#### **POST /api/Site**
+#### **POST /api/Location**
 - **Objectif** : Créer un nouveau site.
 - **Étapes** :
   - Suivez les mêmes étapes que pour **POST /api/Service**, en utilisant :
@@ -176,17 +176,17 @@ Voici un **guide de test complet pour l'API**, organisé par endpoint et adapté
   }
   ```
 
-#### **GET /api/Site/{id}**
+#### **GET /api/Location/{id}**
 - **Objectif** : Récupérer un site spécifique.
 - **Étapes** :
   - Similaire à **GET /api/Service/{id}**.
 
-#### **PUT /api/Site/{id}**
+#### **PUT /api/Location/{id}**
 - **Objectif** : Modifier un site.
 - **Étapes** :
   - Suivez les mêmes étapes que pour **PUT /api/Service/{id}**, en modifiant la propriété `city`.
 
-#### **DELETE /api/Site/{id}**
+#### **DELETE /api/Location/{id}**
 - **Objectif** : Supprimer un site.
 - **Étapes** :
   - Similaire à **DELETE /api/Service/{id}**.
