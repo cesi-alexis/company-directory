@@ -11,9 +11,9 @@ namespace Data.context
     // Contexte de base de données pour Entity Framework
     public class BusinessDirectoryDbContext : DbContext
     {
-        public DbSet<Site> Sites { get; set; } = null!;
+        public DbSet<Location> Locations { get; set; } = null!;
         public DbSet<Service> Services { get; set; } = null!;
-        public DbSet<Employee> Employees { get; set; } = null!;
+        public DbSet<Worker> Workers { get; set; } = null!;
 
         public BusinessDirectoryDbContext(DbContextOptions<BusinessDirectoryDbContext> options)
             : base(options)
@@ -25,32 +25,32 @@ namespace Data.context
             base.OnModelCreating(modelBuilder);
 
             // Configuration des contraintes et relations supplémentaires
-            modelBuilder.Entity<Site>().Property(s => s.City).IsRequired().HasMaxLength(50);
-            modelBuilder.Entity<Site>()
+            modelBuilder.Entity<Location>().Property(s => s.City).IsRequired().HasMaxLength(50);
+            modelBuilder.Entity<Location>()
                 .HasIndex(e => e.City)
                 .IsUnique();
             modelBuilder.Entity<Service>().Property(s => s.Name).IsRequired().HasMaxLength(100);
             modelBuilder.Entity<Service>()
                 .HasIndex(e => e.Name)
                 .IsUnique();
-            modelBuilder.Entity<Employee>()
-                .HasOne(e => e.Site)
-                .WithMany(s => s.Employees)
-                .HasForeignKey(e => e.SiteId)
+            modelBuilder.Entity<Worker>()
+                .HasOne(e => e.Location)
+                .WithMany(s => s.Workers)
+                .HasForeignKey(e => e.LocationId)
                 .OnDelete(DeleteBehavior.Restrict); // Empêche la suppression si des employés sont liés
-            modelBuilder.Entity<Employee>()
+            modelBuilder.Entity<Worker>()
                 .HasOne(e => e.Service)
-                .WithMany(s => s.Employees)
+                .WithMany(s => s.Workers)
                 .HasForeignKey(e => e.ServiceId)
                 .OnDelete(DeleteBehavior.Restrict); // Empêche la suppression si des employés sont liés
-            modelBuilder.Entity<Employee>().Property(e => e.FirstName).IsRequired().HasMaxLength(50);
-            modelBuilder.Entity<Employee>().Property(e => e.LastName).IsRequired().HasMaxLength(50);
-            modelBuilder.Entity<Employee>().Property(e => e.Email).IsRequired().HasMaxLength(100);
-            modelBuilder.Entity<Employee>()
+            modelBuilder.Entity<Worker>().Property(e => e.FirstName).IsRequired().HasMaxLength(50);
+            modelBuilder.Entity<Worker>().Property(e => e.LastName).IsRequired().HasMaxLength(50);
+            modelBuilder.Entity<Worker>().Property(e => e.Email).IsRequired().HasMaxLength(100);
+            modelBuilder.Entity<Worker>()
                 .HasIndex(e => e.Email)
                 .IsUnique();
-            modelBuilder.Entity<Employee>().Property(e => e.PhoneFixed).HasMaxLength(15);
-            modelBuilder.Entity<Employee>().Property(e => e.PhoneMobile).HasMaxLength(15);
+            modelBuilder.Entity<Worker>().Property(e => e.PhoneFixed).HasMaxLength(15);
+            modelBuilder.Entity<Worker>().Property(e => e.PhoneMobile).HasMaxLength(15);
         }
     }
 }

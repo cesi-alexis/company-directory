@@ -1,6 +1,6 @@
 ﻿using RestSharp;
 
-namespace APITests
+namespace TestsAPI
 {
     public abstract class BaseApiTests : TestBase
     {

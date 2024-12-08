@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 using RestSharp;
 using Xunit;
 
-namespace APITests
+namespace TestsAPI
 {
     public class ServiceApiTests : BaseApiTests
     {
@@ -174,17 +174,17 @@ namespace APITests
         }
 
         [Fact]
-        public async Task DeleteService_WithLinkedEmployees_ShouldReturnConflict()
+        public async Task DeleteService_WithLinkedWorkers_ShouldReturnConflict()
         {
-            // Crée une instance pour les tests d'employés et de sites
-            var siteApiTests = new SiteApiTests();
-            var employeeApiTests = new EmployeeApiTests();
+            // Crée une instance pour les tests d'employés et de locations
+            var locationApiTests = new LocationApiTests();
+            var workerApiTests = new WorkerApiTests();
 
             // Crée un nouveau service
             var serviceId = await CreateService();
 
             // Crée un employé associé à ce service
-            await employeeApiTests.CreateEmployee(serviceId: serviceId, siteApiTests: siteApiTests, serviceApiTests: this);
+            await workerApiTests.CreateEmployee(serviceId: serviceId, locationApiTests: locationApiTests, serviceApiTests: this);
 
             // Tentative de suppression du service
             var request = new RestRequest($"Service/{serviceId}", Method.Delete);
@@ -195,7 +195,7 @@ namespace APITests
         }
 
         [Fact]
-        public async Task DeleteService_WithoutLinkedEmployees_ShouldReturnOK()
+        public async Task DeleteService_WithoutLinkedWorkers_ShouldReturnOK()
         {
             var serviceId = await CreateService();
 

@@ -33,9 +33,10 @@ builder.Services.AddDbContext<BusinessDirectoryDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddMemoryCache();
 builder.Services.Configure<CacheSettings>(builder.Configuration.GetSection("CacheSettings"));
+
 builder.Services.AddScoped<ValidateModelAttribute>();
-builder.Services.AddScoped<EmployeeService>();
-builder.Services.AddScoped<SiteService>();
+builder.Services.AddScoped<WorkerService>();
+builder.Services.AddScoped<LocationService>();
 builder.Services.AddScoped<ServiceService>();
 var app = builder.Build();
 

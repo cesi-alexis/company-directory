@@ -24,7 +24,7 @@ namespace Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Sites",
+                name: "Locations",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -33,11 +33,11 @@ namespace Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Sites", x => x.Id);
+                    table.PrimaryKey("PK_Locations", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Employees",
+                name: "Workers",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -48,47 +48,47 @@ namespace Data.Migrations
                     PhoneMobile = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     ServiceId = table.Column<int>(type: "int", nullable: false),
-                    SiteId = table.Column<int>(type: "int", nullable: false)
+                    LocationId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Employees", x => x.Id);
+                    table.PrimaryKey("PK_Workers", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Employees_Services_ServiceId",
+                        name: "FK_Workers_Services_ServiceId",
                         column: x => x.ServiceId,
                         principalTable: "Services",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Employees_Sites_SiteId",
-                        column: x => x.SiteId,
-                        principalTable: "Sites",
+                        name: "FK_Workers_Locations_LocationId",
+                        column: x => x.LocationId,
+                        principalTable: "Locations",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Employees_ServiceId",
-                table: "Employees",
+                name: "IX_Workers_ServiceId",
+                table: "Workers",
                 column: "ServiceId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Employees_SiteId",
-                table: "Employees",
-                column: "SiteId");
+                name: "IX_Workers_LocationId",
+                table: "Workers",
+                column: "LocationId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Employees");
+                name: "Workers");
 
             migrationBuilder.DropTable(
                 name: "Services");
 
             migrationBuilder.DropTable(
-                name: "Sites");
+                name: "Locations");
         }
     }
 }

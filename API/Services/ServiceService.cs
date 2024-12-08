@@ -55,7 +55,7 @@ namespace API.Services
             }
 
             var service = await _context.Services
-                .Include(s => s.Employees) // Include related data if necessary
+                .Include(s => s.Workers) // Include related data if necessary
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (service == null)
@@ -113,12 +113,12 @@ namespace API.Services
 
         public async Task<bool> DeleteServiceAsync(int id)
         {
-            var service = await _context.Services.Include(s => s.Employees).FirstOrDefaultAsync(s => s.Id == id);
+            var service = await _context.Services.Include(s => s.Workers).FirstOrDefaultAsync(s => s.Id == id);
             if (service == null)
                 throw new NotFoundException($"Service with ID {id} was not found.");
 
-            if (service.Employees != null && service.Employees.Any())
-                throw new ConflictException("Cannot delete a service that has linked employees.");
+            if (service.Workers != null && service.Workers.Any())
+                throw new ConflictException("Cannot delete a service that has linked workers.");
 
             _context.Services.Remove(service);
             await _context.SaveChangesAsync();

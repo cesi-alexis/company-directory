@@ -18,7 +18,7 @@ namespace Data.Entities
         public string Name { get; set; } = null!;
 
         // Relation avec les employés
-        public ICollection<Employee> Employees { get; set; } = new List<Employee>();
+        public ICollection<Worker> Workers { get; set; } = new List<Worker>();
     }
 
 }

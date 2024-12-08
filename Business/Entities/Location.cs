@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Data.Entities
 {
-    // Modèle représentant un site de l'entreprise
-    public class Site
+    // Modèle représentant une localisation de l'entreprise
+    public class Location
     {
         [Key]
         public int Id { get; set; }
@@ -17,6 +17,6 @@ namespace Data.Entities
         [MaxLength(50)]
         public string City { get; set; } = null!;
 
-        public ICollection<Employee> Employees { get; set; } = new List<Employee>();
+        public ICollection<Worker> Workers { get; set; } = new List<Worker>();
     }
 }
