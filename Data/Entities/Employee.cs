@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,12 +14,12 @@ namespace Data.Entities
         [Key]
         public int Id { get; set; }
 
-        [Required]
-        [MaxLength(50)]
+        [Required(ErrorMessage = "The FirstName field is required.")]
+        [MaxLength(50, ErrorMessage = "The FirstName cannot exceed 50 characters.")]
         public string FirstName { get; set; } = null!;
 
-        [Required]
-        [MaxLength(50)]
+        [Required(ErrorMessage = "The LastName field is required.")]
+        [MaxLength(50, ErrorMessage = "The LastName cannot exceed 50 characters.")]
         public string LastName { get; set; } = null!;
 
         [Required]
@@ -32,7 +33,7 @@ namespace Data.Entities
         public string PhoneMobile { get; set; } = null!;
 
         [Required]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "The Email field is not a valid email address.")]
         [MaxLength(100)]
         public string Email { get; set; } = null!;
 
@@ -40,12 +41,12 @@ namespace Data.Entities
         public int ServiceId { get; set; }
 
         [ForeignKey("ServiceId")]
-        public Service Service { get; set; } = null!;
+        public Service? Service { get; set; } = null!;
 
         [Required]
         public int SiteId { get; set; }
 
         [ForeignKey("SiteId")]
-        public Site Site { get; set; } = null!;
+        public Site? Site { get; set; } = null!;
     }
 }

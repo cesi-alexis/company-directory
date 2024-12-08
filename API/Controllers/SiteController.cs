@@ -1,4 +1,5 @@
 using API.Services;
+using API.Utils;
 using Data.Entities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,60 +18,73 @@ namespace API.Controllers
 
         // GET: api/Site
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Site>>> GetSites()
+        public async Task<IActionResult> GetSites(
+            [FromQuery] string? fields = null,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = Constants.MAX_PAGES)
         {
-            var sites = await _siteService.GetAllSitesAsync();
-            return Ok(sites);
-        }
-
-        // GET: api/Site/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Site>> GetSite(int id)
-        {
-            var site = await _siteService.GetSiteByIdAsync(id);
-
-            if (site == null)
+            return await ResponseUtils.HandleResponseAsync(async () =>
             {
-                return NotFound();
-            }
-
-            return Ok(site);
+                var (sites, totalCount) = await _siteService.GetFilteredSitesAsync(fields, pageNumber, pageSize);
+                return new
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    TotalCount = totalCount,
+                    TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+                    Sites = sites
+                };
+            });
         }
 
-        // PUT: api/Site/5
+        // GET: api/Site/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetSite(int id)
+        {
+            return await ResponseUtils.HandleResponseAsync(async () => await _siteService.GetSiteByIdAsync(id));
+        }
+
+        // PUT: api/Site/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> PutSite(int id, Site site)
         {
-            var result = await _siteService.UpdateSiteAsync(id, site);
-
-            if (!result)
+            return await ResponseUtils.HandleResponseAsync(async () =>
             {
-                return NotFound();
-            }
-
-            return NoContent();
+                await _siteService.UpdateSiteAsync(id, site);
+                return NoContent();
+            });
         }
 
         // POST: api/Site
         [HttpPost]
-        public async Task<ActionResult<Site>> PostSite(Site site)
+        public async Task<IActionResult> PostSite(Site site)
         {
-            var createdSite = await _siteService.CreateSiteAsync(site);
-            return CreatedAtAction("GetSite", new { id = createdSite.Id }, createdSite);
+            return await ResponseUtils.HandleResponseAsync(async () =>
+            {
+                var createdSite = await _siteService.CreateSiteAsync(site);
+                return CreatedAtAction(nameof(GetSite), new { id = createdSite.Id }, createdSite);
+            });
         }
 
-        // DELETE: api/Site/5
+        // DELETE: api/Site/{id}
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteSite(int id)
         {
-            var result = await _siteService.DeleteSiteAsync(id);
-
-            if (!result)
+            return await ResponseUtils.HandleResponseAsync(async () =>
             {
-                return NotFound();
-            }
+                await _siteService.DeleteSiteAsync(id);
+                return NoContent();
+            });
+        }
 
-            return NoContent();
+        [HttpGet("exists/{city}")]
+        public async Task<IActionResult> SiteExists(string city)
+        {
+            return await ResponseUtils.HandleResponseAsync(async () =>
+            {
+                var exists = await _siteService.SiteExistsAsync(city);
+                return new { Exists = exists };
+            });
         }
     }
 }

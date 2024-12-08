@@ -1,76 +1,80 @@
 using API.Services;
+using API.Utils;
 using Data.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace API.Controllers
+[Route("api/[controller]")]
+[ApiController]
+public class ServiceController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ServiceController : ControllerBase
+    private readonly ServiceService _serviceService;
+
+    public ServiceController(ServiceService serviceService)
     {
-        private readonly ServiceService _businessService;
+        _serviceService = serviceService;
+    }
 
-        public ServiceController(ServiceService businessService)
+    [HttpGet]
+    public async Task<IActionResult> GetServices([FromQuery] string? fields = null, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = Constants.MAX_PAGES)
+    {
+        return await ResponseUtils.HandleResponseAsync(async () =>
         {
-            _businessService = businessService;
-        }
-
-        // GET: api/Service
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Service>>> GetServices()
-        {
-            var services = await _businessService.GetAllServicesAsync();
-            return Ok(services);
-        }
-
-        // GET: api/Service/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Service>> GetService(int id)
-        {
-            var service = await _businessService.GetServiceByIdAsync(id);
-
-            if (service == null)
+            var (services, totalCount) = await _serviceService.GetFilteredServicesAsync(fields, pageNumber, pageSize);
+            return new
             {
-                return NotFound();
-            }
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling((double)totalCount / pageSize),
+                Services = services
+            };
+        });
+    }
 
-            return Ok(service);
-        }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetService(int id)
+    {
+        return await ResponseUtils.HandleResponseAsync(async () => await _serviceService.GetServiceByIdAsync(id));
+    }
 
-        // PUT: api/Service/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutService(int id, Service service)
+    [HttpPost]
+    public async Task<IActionResult> PostService(Service service)
+    {
+        return await ResponseUtils.HandleResponseAsync(async () =>
         {
-            var result = await _businessService.UpdateServiceAsync(id, service);
+            var createdService = await _serviceService.CreateServiceAsync(service);
+            return CreatedAtAction(nameof(GetService), new { id = createdService.Id }, createdService);
+        });
+    }
 
-            if (!result)
-            {
-                return NotFound();
-            }
-
+    [HttpPut("{id}")]
+    public async Task<IActionResult> PutService(int id, Service service)
+    {
+        return await ResponseUtils.HandleResponseAsync(async () =>
+        {
+            await _serviceService.UpdateServiceAsync(id, service);
             return NoContent();
-        }
+        });
+    }
 
-        // POST: api/Service
-        [HttpPost]
-        public async Task<ActionResult<Service>> PostService(Service service)
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteService(int id)
+    {
+        return await ResponseUtils.HandleResponseAsync(async () =>
         {
-            var createdService = await _businessService.CreateServiceAsync(service);
-            return CreatedAtAction("GetService", new { id = createdService.Id }, createdService);
-        }
-
-        // DELETE: api/Service/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteService(int id)
-        {
-            var result = await _businessService.DeleteServiceAsync(id);
-
-            if (!result)
-            {
-                return NotFound();
-            }
-
+            await _serviceService.DeleteServiceAsync(id);
             return NoContent();
-        }
+        });
+    }
+
+    [HttpGet("exists/{name}")]
+    public async Task<IActionResult> ServiceExists(string name)
+    {
+        return await ResponseUtils.HandleResponseAsync(async () =>
+        {
+            var exists = await _serviceService.ServiceExistsAsync(name);
+            return new { Exists = exists };
+        });
     }
 }
