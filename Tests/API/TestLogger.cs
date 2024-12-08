@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO;
-using System.Text;
-using System.Threading;
-
-public static class TestLogger
+﻿public static class TestLogger
 {
     private static readonly object LockObject = new object();
     private static readonly string LogFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "out", "tests_results.md");

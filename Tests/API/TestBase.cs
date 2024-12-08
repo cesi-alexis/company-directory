@@ -1,7 +1,6 @@
-﻿using System.Net;
+﻿using RestSharp;
+using System.Net;
 using System.Text.Json;
-using RestSharp;
-using Xunit;
 
 namespace TestsAPI
 {

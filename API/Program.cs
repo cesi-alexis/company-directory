@@ -2,7 +2,6 @@ using API.Middlewares;
 using API.Services;
 using CompanyDirectory.Contexts;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 var builder = WebApplication.CreateBuilder(args);
 // Configuration explicite pour Kestrel
