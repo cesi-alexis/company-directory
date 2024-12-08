@@ -1,20 +1,16 @@
-using API.Services;
-using API.Utils;
-using Data.Entities;
+using CompanyDirectory.API.Common;
+using CompanyDirectory.API.Services;
+using CompanyDirectory.API.Utils;
+using CompanyDirectory.Models.Entities;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers
+namespace CompanyDirectory.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LocationController : ControllerBase
+    public class LocationController(LocationService locationService) : ControllerBase
     {
-        private readonly LocationService _locationService;
-
-        public LocationController(LocationService locationService)
-        {
-            _locationService = locationService;
-        }
+        private readonly LocationService _locationService = locationService;
 
         // GET: api/Location
         [HttpGet]

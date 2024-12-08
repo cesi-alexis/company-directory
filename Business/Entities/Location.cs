@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Data.Entities
+namespace CompanyDirectory.Models.Entities
 {
     // Modèle représentant une localisation de l'entreprise
     public class Location
@@ -12,6 +12,6 @@ namespace Data.Entities
         [MaxLength(50)]
         public string City { get; set; } = null!;
 
-        public ICollection<Worker> Workers { get; set; } = new List<Worker>();
+        public ICollection<Worker> Workers { get; set; } = [];
     }
 }

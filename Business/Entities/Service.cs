@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Data.Entities
+namespace CompanyDirectory.Models.Entities
 {
     // Modèle représentant un service de l'entreprise
     public class Service
@@ -13,7 +13,7 @@ namespace Data.Entities
         public string Name { get; set; } = null!;
 
         // Relation avec les employés
-        public ICollection<Worker> Workers { get; set; } = new List<Worker>();
+        public ICollection<Worker> Workers { get; set; } = [];
     }
 
 }

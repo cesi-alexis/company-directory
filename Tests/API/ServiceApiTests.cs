@@ -2,9 +2,9 @@
 using RestSharp;
 using System.Net;
 
-namespace TestsAPI
+namespace CompanyDirectory.Tests.API
 {
-    public class ServiceApiTests : BaseApiTests
+    public class ServiceApiTests : BaseTests
     {
         public ServiceApiTests() : base() { }
 
@@ -32,7 +32,7 @@ namespace TestsAPI
         [Fact]
         public async Task GetAllServices_ShouldReturnServices()
         {
-            await LogTest("Service", "GetAllServices_ShouldReturnServices", async () =>
+            await AwaitAction(async () =>
             {
                 var request = new RestRequest("Service", Method.Get);
                 var response = await Client.ExecuteAsync(request);
@@ -56,7 +56,7 @@ namespace TestsAPI
         [Fact]
         public async Task GetServiceById_ValidId_ShouldReturnService()
         {
-            await LogTest("Service/{id}", "GetServiceById_ValidId_ShouldReturnService", async () =>
+            await AwaitAction(async () =>
             {
                 var serviceId = await CreateService();
                 var request = new RestRequest($"Service/{serviceId}", Method.Get);
@@ -72,7 +72,7 @@ namespace TestsAPI
         [Fact]
         public async Task GetServiceById_InvalidId_ShouldReturnNotFound()
         {
-            await LogTest("Service/{id}", "GetServiceById_InvalidId_ShouldReturnNotFound", async () =>
+            await AwaitAction(async () =>
             {
                 var request = new RestRequest($"Service/{int.MaxValue}", Method.Get);
                 var response = await Client.ExecuteAsync(request);
@@ -84,7 +84,7 @@ namespace TestsAPI
         [Fact]
         public async Task CreateService_WithMissingField_ShouldReturnBadRequest()
         {
-            await LogTest("Service", "CreateService_WithMissingField_ShouldReturnBadRequest", async () =>
+            await AwaitAction(async () =>
             {
                 var request = new RestRequest("Service", Method.Post)
                     .AddJsonBody(new { });
@@ -112,7 +112,7 @@ namespace TestsAPI
         [Fact]
         public async Task UpdateService_ValidData_ShouldReturnOk()
         {
-            await LogTest("Service/{id}", "UpdateService_ValidData_ShouldReturnOk", async () =>
+            await AwaitAction(async () =>
             {
                 var serviceId = await CreateService();
                 var request = new RestRequest($"Service/{serviceId}", Method.Put)
@@ -131,7 +131,7 @@ namespace TestsAPI
         [Fact]
         public async Task UpdateService_InvalidId_ShouldReturnNotFound()
         {
-            await LogTest("Service/{id}", "UpdateService_InvalidId_ShouldReturnNotFound", async () =>
+            await AwaitAction(async () =>
             {
                 var request = new RestRequest($"Service/{int.MaxValue}", Method.Put)
                     .AddJsonBody(new
@@ -149,7 +149,7 @@ namespace TestsAPI
         [Fact]
         public async Task DeleteService_ValidId_ShouldReturnOK()
         {
-            await LogTest("Service/{id}", "DeleteService_ValidId_ShouldReturnOK", async () =>
+            await AwaitAction(async () =>
             {
                 var serviceId = await CreateService();
                 var request = new RestRequest($"Service/{serviceId}", Method.Delete);
@@ -163,7 +163,7 @@ namespace TestsAPI
         [Fact]
         public async Task DeleteService_InvalidId_ShouldReturnNotFound()
         {
-            await LogTest("Service/{id}", "DeleteService_InvalidId_ShouldReturnNotFound", async () =>
+            await AwaitAction(async () =>
             {
                 var request = new RestRequest($"Service/{int.MaxValue}", Method.Delete);
                 var response = await Client.ExecuteAsync(request);
@@ -207,7 +207,7 @@ namespace TestsAPI
         [Fact]
         public async Task GetServices_WithPagination_ShouldReturnLimitedResults()
         {
-            var serviceApiTests = new ServiceApiTests();
+            //var serviceApiTests = new ServiceApiTests();
 
             // Ajouter 5 services
             // for (int i = 0; i < 5; i++)

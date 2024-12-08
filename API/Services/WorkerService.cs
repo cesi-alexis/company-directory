@@ -1,32 +1,26 @@
-﻿using CompanyDirectory.Contexts;
-using Data.Entities;
+﻿using CompanyDirectory.API.Common;
+using CompanyDirectory.API.Common.Exceptions;
+using CompanyDirectory.API.Contexts;
+using CompanyDirectory.API.Utils;
+using CompanyDirectory.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
-namespace API.Services
+namespace CompanyDirectory.API.Services
 {
-    public class WorkerService
+    public class WorkerService(
+        BusinessDirectoryDbContext context,
+        IMemoryCache cache,
+        IOptions<CacheSettings> cacheSettings,
+        ServiceService serviceService,
+        LocationService locationService)
     {
-        private readonly BusinessDirectoryDbContext _context;
-        private readonly IMemoryCache _cache;
-        private readonly CacheSettings _cacheSettings;
-        private readonly ServiceService _serviceService;
-        private readonly LocationService _locationService;
-
-        public WorkerService(
-            BusinessDirectoryDbContext context,
-            IMemoryCache cache,
-            IOptions<CacheSettings> cacheSettings,
-            ServiceService serviceService,
-            LocationService locationService)
-        {
-            _context = context;
-            _cache = cache;
-            _cacheSettings = cacheSettings.Value;
-            _serviceService = serviceService;
-            _locationService = locationService;
-        }
+        private readonly BusinessDirectoryDbContext _context = context;
+        private readonly IMemoryCache _cache = cache;
+        private readonly CacheSettings _cacheSettings = cacheSettings.Value;
+        private readonly ServiceService _serviceService = serviceService;
+        private readonly LocationService _locationService = locationService;
 
         public async Task<(IEnumerable<object> Workers, int TotalCount)> GetFilteredWorkersAsync(
             string? fields = null,
@@ -55,19 +49,18 @@ namespace API.Services
                 throw new ValidationException("The provided ID must be greater than 0.");
 
             var cacheKey = $"Worker_{id}";
-            if (_cache.TryGetValue(cacheKey, out Worker cachedWorker))
+            if (_cache.TryGetValue(cacheKey, out Worker? cachedWorker))
             {
-                return cachedWorker;
+                if (cachedWorker is not null)
+                {
+                    return cachedWorker;
+                }
             }
 
             var worker = await _context.Workers
                 .Include(e => e.Service)
                 .Include(e => e.Location)
-                .FirstOrDefaultAsync(e => e.Id == id);
-
-            if (worker == null)
-                throw new NotFoundException($"Worker with ID {id} was not found.");
-
+                .FirstOrDefaultAsync(e => e.Id == id) ?? throw new NotFoundException($"Worker with ID {id} was not found.");
             _cache.Set(cacheKey, worker, TimeSpan.FromMinutes(_cacheSettings.DefaultCacheDuration));
             return worker;
         }
@@ -130,10 +123,7 @@ namespace API.Services
 
         public async Task<bool> DeleteWorkerAsync(int id)
         {
-            var worker = await _context.Workers.FindAsync(id);
-            if (worker == null)
-                throw new NotFoundException($"Worker with ID {id} was not found.");
-
+            var worker = await _context.Workers.FindAsync(id) ?? throw new NotFoundException($"Worker with ID {id} was not found.");
             _context.Workers.Remove(worker);
             await _context.SaveChangesAsync();
 
@@ -149,13 +139,13 @@ namespace API.Services
 
         public async Task<bool> WorkerExistsAsync(string email)
         {
-            if (string.IsNullOrWhiteSpace(email))
-                throw new ValidationException("Email must be provided.");
-
-            return await _context.Workers.AnyAsync(e => e.Email.ToLower() == email.ToLower());
+            // Utilisation d'EF.Functions.Like pour une comparaison insensible à la casse
+            return await _context.Workers
+                .AsNoTracking()
+                .AnyAsync(l => EF.Functions.Like(l.Email, email));
         }
 
-        private void ValidateWorkerFields(Worker worker)
+        private static void ValidateWorkerFields(Worker worker)
         {
             if (string.IsNullOrWhiteSpace(worker.FirstName))
             {
@@ -189,10 +179,10 @@ namespace API.Services
                 e.Email == email && (!excludeId.HasValue || e.Id != excludeId.Value));
         }
 
-        private bool IsValidEmail(string email) =>
-            !string.IsNullOrWhiteSpace(email) && email.Contains("@") && email.Contains(".");
+        private static bool IsValidEmail(string email) =>
+            !string.IsNullOrWhiteSpace(email) && email.Contains('@') && email.Contains('.');
 
-        private bool IsValidPhoneNumber(string phoneNumber) =>
+        private static bool IsValidPhoneNumber(string phoneNumber) =>
             !string.IsNullOrWhiteSpace(phoneNumber) && phoneNumber.All(char.IsDigit);
     }
 }

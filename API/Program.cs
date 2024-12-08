@@ -1,6 +1,8 @@
-using API.Middlewares;
-using API.Services;
-using CompanyDirectory.Contexts;
+using CompanyDirectory.API.Common;
+using CompanyDirectory.API.Contexts;
+using CompanyDirectory.API.Middlewares;
+using CompanyDirectory.API.Services;
+using CompanyDirectory.API.Validation;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);

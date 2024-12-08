@@ -2,9 +2,9 @@
 using RestSharp;
 using System.Net;
 
-namespace TestsAPI
+namespace CompanyDirectory.Tests.API
 {
-    public class LocationApiTests : BaseApiTests
+    public class LocationApiTests : BaseTests
     {
         public LocationApiTests() : base() { }
 
@@ -31,7 +31,7 @@ namespace TestsAPI
         [Fact]
         public async Task GetAllLocations_ShouldReturnLocations()
         {
-            await LogTest("Locations", "GetAllLocations_ShouldReturnLocations", async () =>
+            await AwaitAction(async () =>
             {
                 var request = CreateRequest("location", Method.Get);
                 var response = await Client.ExecuteAsync(request);
@@ -54,7 +54,7 @@ namespace TestsAPI
         [Fact]
         public async Task GetLocationById_ValidId_ShouldReturnLocation()
         {
-            await LogTest("Location/{id}", "GetLocationById_ValidId_ShouldReturnLocation", async () =>
+            await AwaitAction(async () =>
             {
                 var locationId = await CreateLocation();
                 var request = CreateRequest($"Location/{locationId}", Method.Get);
@@ -70,7 +70,7 @@ namespace TestsAPI
         [Fact]
         public async Task GetLocationById_InvalidId_ShouldReturnNotFound()
         {
-            await LogTest("Location/{id}", "GetLocationById_InvalidId_ShouldReturnNotFound", async () =>
+            await AwaitAction(async () =>
             {
                 var request = CreateRequest($"Location/{int.MaxValue}", Method.Get);
                 var response = await Client.ExecuteAsync(request);
@@ -82,7 +82,7 @@ namespace TestsAPI
         [Fact]
         public async Task CreateLocation_WithMissingField_ShouldReturnBadRequest()
         {
-            await LogTest("Location", "CreateLocation_WithMissingField_ShouldReturnBadRequest", async () =>
+            await AwaitAction(async () =>
             {
                 var request = CreateRequest("Location", Method.Post, new { });
                 var response = await Client.ExecuteAsync(request);
@@ -106,7 +106,7 @@ namespace TestsAPI
         [Fact]
         public async Task UpdateLocation_ValidData_ShouldReturnOk()
         {
-            await LogTest("Location/{id}", "UpdateLocation_ValidData_ShouldReturnOk", async () =>
+            await AwaitAction(async () =>
             {
                 var locationId = await CreateLocation();
                 var request = CreateRequest($"Location/{locationId}", Method.Put, new
@@ -124,7 +124,7 @@ namespace TestsAPI
         [Fact]
         public async Task UpdateLocation_InvalidId_ShouldReturnNotFound()
         {
-            await LogTest("Location/{id}", "UpdateLocation_InvalidId_ShouldReturnNotFound", async () =>
+            await AwaitAction(async () =>
             {
                 var request = CreateRequest($"Location/{int.MaxValue}", Method.Put, new
                 {
@@ -141,7 +141,7 @@ namespace TestsAPI
         [Fact]
         public async Task DeleteLocation_ValidId_ShouldReturnOK()
         {
-            await LogTest("Location/{id}", "DeleteLocation_ValidId_ShouldReturnOK", async () =>
+            await AwaitAction(async () =>
             {
                 var locationId = await CreateLocation();
                 var request = CreateRequest($"Location/{locationId}", Method.Delete);
@@ -155,7 +155,7 @@ namespace TestsAPI
         [Fact]
         public async Task DeleteLocation_InvalidId_ShouldReturnNotFound()
         {
-            await LogTest("Location/{id}", "DeleteLocation_InvalidId_ShouldReturnNotFound", async () =>
+            await AwaitAction(async () =>
             {
                 var request = CreateRequest($"Location/{int.MaxValue}", Method.Delete);
                 var response = await Client.ExecuteAsync(request);
@@ -228,7 +228,7 @@ namespace TestsAPI
         [Fact]
         public async Task GetLocations_WithPagination_ShouldReturnLimitedResults()
         {
-            var locationApiTests = new LocationApiTests();
+            //var locationApiTests = new LocationApiTests();
 
             // Ajouter 5 locations
             //for (int i = 0; i < 5; i++)
