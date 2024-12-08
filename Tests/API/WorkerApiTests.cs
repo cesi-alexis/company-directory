@@ -1,7 +1,6 @@
-﻿using System.Net;
-using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json.Linq;
 using RestSharp;
-using Xunit;
+using System.Net;
 
 namespace TestsAPI
 {

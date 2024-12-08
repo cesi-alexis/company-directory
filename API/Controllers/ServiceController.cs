@@ -2,7 +2,6 @@ using API.Services;
 using API.Utils;
 using Data.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 [Route("api/[controller]")]
 [ApiController]
