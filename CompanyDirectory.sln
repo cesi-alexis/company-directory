@@ -9,17 +9,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{1D2EC2
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{224633BF-49EB-4A3A-AC0C-132C2817C8C5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyDirectory.Data", "Data\CompanyDirectory.Data.csproj", "{FE2951CE-8358-49D3-8421-F0FD07B371A8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyDirectory.Models", "Data\CompanyDirectory.Models.csproj", "{FE2951CE-8358-49D3-8421-F0FD07B371A8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyDirectory.Presentation", "Presentation\CompanyDirectory.Presentation.csproj", "{0D86046E-91EA-4039-ACAA-990A48688F7F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyDirectory.Client", "Presentation\CompanyDirectory.Client.csproj", "{0D86046E-91EA-4039-ACAA-990A48688F7F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{1AC74B4A-84C7-459D-AF43-CFF2E1BB66FB}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyDirectory.API", "API\CompanyDirectory.API.csproj", "{B2018A4F-18E2-4C1B-BE80-DF59EE07E83E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyDirectory.APITests", "APITests\CompanyDirectory.APITests.csproj", "{B216B7D9-1526-4A6B-B52F-E441F3A37BDA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyDirectory.Tests.API", "APITests\CompanyDirectory.Tests.API.csproj", "{B216B7D9-1526-4A6B-B52F-E441F3A37BDA}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "APITests", "APITests", "{297D3BD5-A5F9-4E55-9ADE-769F41C425BC}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{297D3BD5-A5F9-4E55-9ADE-769F41C425BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

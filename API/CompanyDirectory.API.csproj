@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Data\CompanyDirectory.Data.csproj" />
+    <ProjectReference Include="..\Data\CompanyDirectory.Models.csproj" />
   </ItemGroup>
 
   <ItemGroup>
