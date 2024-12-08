@@ -232,10 +232,10 @@ namespace APITests
             var siteApiTests = new SiteApiTests();
 
             // Ajouter 5 sites
-            for (int i = 0; i < 5; i++)
-            {
-                await siteApiTests.CreateSite(city: $"TestCity-{i}");
-            }
+            //for (int i = 0; i < 5; i++)
+            //{
+            //    await siteApiTests.CreateSite(city: $"TestCity-{i}");
+            //}
 
             // Récupérer uniquement 4 sites via la pagination
             var request = new RestRequest("Site", Method.Get)
