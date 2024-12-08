@@ -1,4 +1,4 @@
-﻿using CompanyDirectory.API.Common.Exceptions;
+﻿using CompanyDirectory.Common.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CompanyDirectory.API.Utils

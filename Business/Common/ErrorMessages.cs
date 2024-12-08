@@ -1,4 +1,4 @@
-﻿namespace CompanyDirectory.API.Common
+﻿namespace CompanyDirectory.Common
 {
     public static class ErrorMessages
     {

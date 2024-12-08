@@ -1,4 +1,4 @@
-using CompanyDirectory.API.Common;
+using CompanyDirectory.Common;
 using CompanyDirectory.API.Services;
 using CompanyDirectory.API.Utils;
 using CompanyDirectory.Models.Entities;

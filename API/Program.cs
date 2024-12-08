@@ -1,4 +1,4 @@
-using CompanyDirectory.API.Common;
+using CompanyDirectory.Common;
 using CompanyDirectory.API.Contexts;
 using CompanyDirectory.API.Middlewares;
 using CompanyDirectory.API.Services;

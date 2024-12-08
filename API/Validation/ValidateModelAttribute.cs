@@ -1,4 +1,4 @@
-﻿using CompanyDirectory.API.Common;
+﻿using CompanyDirectory.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Reflection;

@@ -1,5 +1,5 @@
-﻿using CompanyDirectory.API.Common;
-using CompanyDirectory.API.Common.Exceptions;
+﻿using CompanyDirectory.Common;
+using CompanyDirectory.Common.Exceptions;
 using CompanyDirectory.API.Contexts;
 using CompanyDirectory.Models.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +20,7 @@ namespace CompanyDirectory.API.Services
         public async Task<(IEnumerable<object> Locations, int TotalCount)> GetFilteredLocationsAsync(
             string? fields = null,
             int pageNumber = 1,
-            int pageSize = CompanyDirectory.API.Common.Constants.MAX_PAGES)
+            int pageSize = Constants.MAX_PAGES)
         {
             if (pageNumber <= 0 || pageSize <= 0)
                 throw new ValidationException("Page number and page size must be greater than 0.");
