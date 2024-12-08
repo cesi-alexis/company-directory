@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Data.context
+namespace CompanyDirectory.Contexts
 {
     // Contexte de base de données pour Entity Framework
     public class BusinessDirectoryDbContext : DbContext

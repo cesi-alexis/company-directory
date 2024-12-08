@@ -1,4 +1,4 @@
-﻿using Data.context;
+﻿using CompanyDirectory.Contexts;
 using Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
