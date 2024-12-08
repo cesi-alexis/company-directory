@@ -1,5 +1,5 @@
 ﻿
-using CompanyDirectory.API.Common;
+using CompanyDirectory.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace CompanyDirectory.API.Utils

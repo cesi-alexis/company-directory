@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace CompanyDirectory.API.Common
+namespace CompanyDirectory.Common
 {
     public static partial class Formats
     {

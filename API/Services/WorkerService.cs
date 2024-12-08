@@ -1,5 +1,5 @@
-﻿using CompanyDirectory.API.Common;
-using CompanyDirectory.API.Common.Exceptions;
+﻿using CompanyDirectory.Common;
+using CompanyDirectory.Common.Exceptions;
 using CompanyDirectory.API.Contexts;
 using CompanyDirectory.API.Utils;
 using CompanyDirectory.Models.Entities;
