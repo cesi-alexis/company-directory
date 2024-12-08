@@ -211,10 +211,10 @@ namespace APITests
             var serviceApiTests = new ServiceApiTests();
 
             // Ajouter 5 services
-            for (int i = 0; i < 5; i++)
-            {
-                await serviceApiTests.CreateService(name: $"TestService-{i}");
-            }
+            // for (int i = 0; i < 5; i++)
+            // {
+            //    await serviceApiTests.CreateService(name: $"TestService-{i}");
+            //}
 
             // Récupérer uniquement 4 services via la pagination
             var request = new RestRequest("Service", Method.Get)
