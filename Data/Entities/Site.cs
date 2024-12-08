@@ -10,14 +10,13 @@ namespace Data.Entities
     // Modèle représentant un site de l'entreprise
     public class Site
     {
-        [Key] // Clé primaire
+        [Key]
         public int Id { get; set; }
 
-        [Required] // Champ obligatoire
-        [MaxLength(50)] // Limite de caractères
-        public string City { get; set; } = null!; // Nom de la ville
+        [Required]
+        [MaxLength(50)]
+        public string City { get; set; } = null!;
 
-        // Relation avec les employés
         public ICollection<Employee> Employees { get; set; } = new List<Employee>();
     }
 }
