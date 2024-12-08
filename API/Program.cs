@@ -1,6 +1,6 @@
 using API.Middlewares;
 using API.Services;
-using Data.context;
+using CompanyDirectory.Contexts;
 using Microsoft.EntityFrameworkCore;
 using System;
 
