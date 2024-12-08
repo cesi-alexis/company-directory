@@ -1,18 +1,17 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
 
-namespace API.Middlewares
+namespace CompanyDirectory.API.Middlewares
 {
-    public class LoggingMiddleware
+    public class LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> logger)
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<LoggingMiddleware> _logger;
-
-        public LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> logger)
+        private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
         {
-            _next = next;
-            _logger = logger;
-        }
+            WriteIndented = true
+        };
+
+        private readonly RequestDelegate _next = next;
+        private readonly ILogger<LoggingMiddleware> _logger = logger;
 
         public async Task InvokeAsync(HttpContext context)
         {
@@ -30,19 +29,17 @@ namespace API.Middlewares
                 // Capture response
                 var originalResponseBodyStream = context.Response.Body;
 
-                using (var responseBody = new MemoryStream())
-                {
-                    context.Response.Body = responseBody;
+                using var responseBody = new MemoryStream();
+                context.Response.Body = responseBody;
 
-                    await _next(context); // Process request
+                await _next(context); // Process request
 
-                    // Log response
-                    stopwatch.Stop();
-                    var responseLog = await LogResponseAsync(context, correlationId, stopwatch.ElapsedMilliseconds);
-                    _logger.LogInformation("Response: {ResponseLog}", responseLog);
+                // Log response
+                stopwatch.Stop();
+                var responseLog = await LogResponseAsync(context, correlationId, stopwatch.ElapsedMilliseconds);
+                _logger.LogInformation("Response: {ResponseLog}", responseLog);
 
-                    await responseBody.CopyToAsync(originalResponseBodyStream);
-                }
+                await responseBody.CopyToAsync(originalResponseBodyStream);
             }
             catch (Exception ex)
             {
@@ -52,7 +49,7 @@ namespace API.Middlewares
             }
         }
 
-        private async Task<string> LogRequestAsync(HttpContext context, string correlationId)
+        private static async Task<string> LogRequestAsync(HttpContext context, string correlationId)
         {
             context.Request.EnableBuffering();
 
@@ -67,19 +64,20 @@ namespace API.Middlewares
             var log = new
             {
                 CorrelationId = correlationId,
-                Scheme = context.Request.Scheme,
-                Host = context.Request.Host,
-                Path = context.Request.Path,
+                context.Request.Scheme,
+                context.Request.Host,
+                context.Request.Path,
                 QueryString = context.Request.QueryString.ToString(),
-                Method = context.Request.Method,
-                Headers = context.Request.Headers,
+                context.Request.Method,
+                context.Request.Headers,
                 Body = requestBody
             };
 
-            return JsonSerializer.Serialize(log, new JsonSerializerOptions { WriteIndented = true });
+
+            return JsonSerializer.Serialize(log, _jsonSerializerOptions);
         }
 
-        private async Task<string> LogResponseAsync(HttpContext context, string correlationId, long elapsedMilliseconds)
+        private static async Task<string> LogResponseAsync(HttpContext context, string correlationId, long elapsedMilliseconds)
         {
             context.Response.Body.Seek(0, SeekOrigin.Begin);
 
@@ -98,13 +96,13 @@ namespace API.Middlewares
             var log = new
             {
                 CorrelationId = correlationId,
-                StatusCode = context.Response.StatusCode,
-                Headers = context.Response.Headers,
+                context.Response.StatusCode,
+                context.Response.Headers,
                 Body = responseBody,
                 ExecutionTimeMs = elapsedMilliseconds
             };
 
-            return JsonSerializer.Serialize(log, new JsonSerializerOptions { WriteIndented = true });
+            return JsonSerializer.Serialize(log, _jsonSerializerOptions);
         }
     }
 }

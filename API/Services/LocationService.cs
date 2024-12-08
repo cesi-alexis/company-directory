@@ -1,31 +1,26 @@
-﻿using CompanyDirectory.Contexts;
-using Data.Entities;
+﻿using CompanyDirectory.API.Common;
+using CompanyDirectory.API.Common.Exceptions;
+using CompanyDirectory.API.Contexts;
+using CompanyDirectory.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
-namespace API.Services
+namespace CompanyDirectory.API.Services
 {
-    public class LocationService
+    public class LocationService(
+        BusinessDirectoryDbContext context,
+        IMemoryCache cache,
+        IOptions<CacheSettings> cacheSettings)
     {
-        private readonly BusinessDirectoryDbContext _context;
-        private readonly IMemoryCache _cache;
-        private readonly CacheSettings _cacheSettings;
-
-        public LocationService(
-            BusinessDirectoryDbContext context,
-            IMemoryCache cache,
-            IOptions<CacheSettings> cacheSettings)
-        {
-            _context = context;
-            _cache = cache;
-            _cacheSettings = cacheSettings.Value;
-        }
+        private readonly BusinessDirectoryDbContext _context = context;
+        private readonly IMemoryCache _cache = cache;
+        private readonly CacheSettings _cacheSettings = cacheSettings.Value;
 
         public async Task<(IEnumerable<object> Locations, int TotalCount)> GetFilteredLocationsAsync(
             string? fields = null,
             int pageNumber = 1,
-            int pageSize = Constants.MAX_PAGES)
+            int pageSize = CompanyDirectory.API.Common.Constants.MAX_PAGES)
         {
             if (pageNumber <= 0 || pageSize <= 0)
                 throw new ValidationException("Page number and page size must be greater than 0.");
@@ -37,7 +32,7 @@ namespace API.Services
             }
 
             var query = _context.Locations.AsQueryable();
-            var result = await ServiceUtils.GetFilteredAsync(query, fields, pageNumber, pageSize);
+            var result = await Utils.ServiceUtils.GetFilteredAsync(query, fields, pageNumber, pageSize);
 
             _cache.Set(cacheKey, result, TimeSpan.FromMinutes(_cacheSettings.DefaultCacheDuration));
             return result;
@@ -49,18 +44,17 @@ namespace API.Services
                 throw new ValidationException("The provided ID must be greater than 0.");
 
             var cacheKey = $"Location_{id}";
-            if (_cache.TryGetValue(cacheKey, out Location cachedLocation))
+            if (_cache.TryGetValue(cacheKey, out Location? cachedLocation))
             {
-                return cachedLocation;
+                if (cachedLocation is not null)
+                {
+                    return cachedLocation;
+                }
             }
 
             var location = await _context.Locations
                 .Include(s => s.Workers) // Include related data if necessary
-                .FirstOrDefaultAsync(s => s.Id == id);
-
-            if (location == null)
-                throw new NotFoundException($"Location with ID {id} was not found.");
-
+                .FirstOrDefaultAsync(s => s.Id == id) ?? throw new NotFoundException($"Location with ID {id} was not found.");
             _cache.Set(cacheKey, location, TimeSpan.FromMinutes(_cacheSettings.DefaultCacheDuration));
             return location;
         }
@@ -69,7 +63,7 @@ namespace API.Services
         {
             ValidateLocationFields(location);
 
-            if (await IsCityDuplicateAsync(location.City))
+            if (await LocationExistsAsync(location.City))
                 throw new ConflictException($"A location with the city '{location.City}' already exists.");
 
             _context.Locations.Add(location);
@@ -85,9 +79,6 @@ namespace API.Services
                 throw new ValidationException("The ID in the URL does not match the location ID.");
 
             ValidateLocationFields(location);
-
-            if (await IsCityDuplicateAsync(location.City, id))
-                throw new ConflictException($"A location with the city '{location.City}' already exists.");
 
             _context.Entry(location).State = EntityState.Modified;
 
@@ -112,11 +103,8 @@ namespace API.Services
 
         public async Task<bool> DeleteLocationAsync(int id)
         {
-            var location = await _context.Locations.Include(s => s.Workers).FirstOrDefaultAsync(s => s.Id == id);
-            if (location == null)
-                throw new NotFoundException($"Location with ID {id} was not found.");
-
-            if (location.Workers != null && location.Workers.Any())
+            var location = await _context.Locations.Include(s => s.Workers).FirstOrDefaultAsync(s => s.Id == id) ?? throw new NotFoundException($"Location with ID {id} was not found.");
+            if (location.Workers != null && location.Workers.Count != 0)
                 throw new ConflictException("Cannot delete a location that has linked workers.");
 
             _context.Locations.Remove(location);
@@ -137,24 +125,13 @@ namespace API.Services
 
         public async Task<bool> LocationExistsAsync(string city)
         {
-            if (string.IsNullOrWhiteSpace(city))
-                throw new ValidationException("City name must be provided.");
-
-            return await _context.Locations.AnyAsync(s => s.City.ToLower() == city.ToLower());
+            // Utilisation d'EF.Functions.Like pour une comparaison insensible à la casse
+            return await _context.Locations
+                .AsNoTracking()
+                .AnyAsync(l => EF.Functions.Like(l.City, city));
         }
 
-        private async Task<bool> IsCityDuplicateAsync(string city, int? excludeId = null)
-        {
-            return await _context.Locations.AnyAsync(s =>
-                s.City.ToLower().Trim() == city.ToLower().Trim() && (!excludeId.HasValue || s.Id != excludeId.Value));
-        }
-
-        private async Task<bool> HasLinkedWorkersAsync(int locationId)
-        {
-            return await _context.Workers.AnyAsync(e => e.LocationId == locationId);
-        }
-
-        private void ValidateLocationFields(Location location)
+        private static void ValidateLocationFields(Location location)
         {
             if (string.IsNullOrWhiteSpace(location.City))
             {

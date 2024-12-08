@@ -1,26 +1,22 @@
-﻿using CompanyDirectory.Contexts;
-using Data.Entities;
+﻿using CompanyDirectory.API.Common;
+using CompanyDirectory.API.Common.Exceptions;
+using CompanyDirectory.API.Contexts;
+using CompanyDirectory.API.Utils;
+using CompanyDirectory.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
-namespace API.Services
+namespace CompanyDirectory.API.Services
 {
-    public class ServiceService
+    public class ServiceService(
+        BusinessDirectoryDbContext context,
+        IMemoryCache cache,
+        IOptions<CacheSettings> cacheSettings)
     {
-        private readonly BusinessDirectoryDbContext _context;
-        private readonly IMemoryCache _cache;
-        private readonly CacheSettings _cacheSettings;
-
-        public ServiceService(
-            BusinessDirectoryDbContext context,
-            IMemoryCache cache,
-            IOptions<CacheSettings> cacheSettings)
-        {
-            _context = context;
-            _cache = cache;
-            _cacheSettings = cacheSettings.Value;
-        }
+        private readonly BusinessDirectoryDbContext _context = context;
+        private readonly IMemoryCache _cache = cache;
+        private readonly CacheSettings _cacheSettings = cacheSettings.Value;
 
         public async Task<(IEnumerable<object> Services, int TotalCount)> GetFilteredServicesAsync(
             string? fields = null,
@@ -49,18 +45,17 @@ namespace API.Services
                 throw new ValidationException("The provided ID must be greater than 0.");
 
             var cacheKey = $"Service_{id}";
-            if (_cache.TryGetValue(cacheKey, out Service cachedService))
+            if (_cache.TryGetValue(cacheKey, out Service? cachedService))
             {
-                return cachedService;
+                if (cachedService is not null)
+                {
+                    return cachedService;
+                }
             }
 
             var service = await _context.Services
                 .Include(s => s.Workers) // Include related data if necessary
-                .FirstOrDefaultAsync(s => s.Id == id);
-
-            if (service == null)
-                throw new NotFoundException($"Service with ID {id} was not found.");
-
+                .FirstOrDefaultAsync(s => s.Id == id) ?? throw new NotFoundException($"Service with ID {id} was not found.");
             _cache.Set(cacheKey, service, TimeSpan.FromMinutes(_cacheSettings.DefaultCacheDuration));
             return service;
         }
@@ -113,11 +108,8 @@ namespace API.Services
 
         public async Task<bool> DeleteServiceAsync(int id)
         {
-            var service = await _context.Services.Include(s => s.Workers).FirstOrDefaultAsync(s => s.Id == id);
-            if (service == null)
-                throw new NotFoundException($"Service with ID {id} was not found.");
-
-            if (service.Workers != null && service.Workers.Any())
+            var service = await _context.Services.Include(s => s.Workers).FirstOrDefaultAsync(s => s.Id == id) ?? throw new NotFoundException($"Service with ID {id} was not found.");
+            if (service.Workers != null && service.Workers.Count != 0)
                 throw new ConflictException("Cannot delete a service that has linked workers.");
 
             _context.Services.Remove(service);
@@ -140,13 +132,13 @@ namespace API.Services
 
         public async Task<bool> ServiceExistsAsync(string name)
         {
-            if (string.IsNullOrWhiteSpace(name))
-                throw new ValidationException("Service name must be provided.");
-
-            return await _context.Services.AnyAsync(s => s.Name.ToLower() == name.ToLower());
+            // Utilisation d'EF.Functions.Like pour une comparaison insensible à la casse
+            return await _context.Services
+                .AsNoTracking()
+                .AnyAsync(l => EF.Functions.Like(l.Name, name));
         }
 
-        private void ValidateServiceFields(Service service)
+        private static void ValidateServiceFields(Service service)
         {
             if (string.IsNullOrWhiteSpace(service.Name))
             {

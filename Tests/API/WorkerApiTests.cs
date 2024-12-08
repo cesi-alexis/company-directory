@@ -2,9 +2,9 @@
 using RestSharp;
 using System.Net;
 
-namespace TestsAPI
+namespace CompanyDirectory.Tests.API
 {
-    public class WorkerApiTests : BaseApiTests
+    public class WorkerApiTests : BaseTests
     {
         public WorkerApiTests() : base() { }
 
@@ -19,8 +19,11 @@ namespace TestsAPI
             ServiceApiTests? serviceApiTests = null,
             LocationApiTests? locationApiTests = null)
         {
-            if (serviceApiTests == null || locationApiTests == null)
-                throw new ArgumentNullException("ServiceApiTests and LocationApiTests instances must be provided.");
+            if (serviceApiTests == null)
+                throw new ArgumentNullException(nameof(serviceApiTests), "ServiceApiTests instance must be provided.");
+
+            if (locationApiTests == null)
+                throw new ArgumentNullException(nameof(locationApiTests), "LocationApiTests instance must be provided.");
 
             email ??= $"test{Guid.NewGuid()}@example.com";
             serviceId ??= await serviceApiTests.CreateService();
@@ -51,7 +54,7 @@ namespace TestsAPI
         [Fact]
         public async Task GetAllWorkers_ShouldReturnWorkers()
         {
-            await LogTest("Workers", "GetAllWorkers_ShouldReturnWorkers", async () =>
+            await AwaitAction(async () =>
             {
                 var request = new RestRequest("workers", Method.Get);
                 var response = await Client.ExecuteAsync(request);
@@ -77,7 +80,7 @@ namespace TestsAPI
             var serviceApiTests = new ServiceApiTests();
             var locationApiTests = new LocationApiTests();
 
-            await LogTest("Workers", "CreateEmployee_ValidData_ShouldReturnCreatedEmployee", async () =>
+            await AwaitAction(async () =>
             {
                 var workerId = await CreateEmployee(serviceApiTests: serviceApiTests, locationApiTests: locationApiTests);
                 Assert.True(workerId > 0);
@@ -87,7 +90,7 @@ namespace TestsAPI
         [Fact]
         public async Task CreateEmployee_MissingRequiredFields_ShouldReturnBadRequest()
         {
-            await LogTest("Workers", "CreateEmployee_MissingRequiredFields_ShouldReturnBadRequest", async () =>
+            await AwaitAction(async () =>
             {
                 var request = new RestRequest("Workers", Method.Post)
                     .AddJsonBody(new { });
@@ -104,7 +107,7 @@ namespace TestsAPI
             var serviceApiTests = new ServiceApiTests();
             var locationApiTests = new LocationApiTests();
 
-            await LogTest("Workers", "CreateEmployee_InvalidEmailFormat_ShouldReturnBadRequest", async () =>
+            await AwaitAction(async () =>
             {
                 var request = new RestRequest("Workers", Method.Post)
                     .AddJsonBody(new
@@ -156,7 +159,7 @@ namespace TestsAPI
             var serviceApiTests = new ServiceApiTests();
             var locationApiTests = new LocationApiTests();
 
-            await LogTest("Workers/{id}", "GetEmployeeById_ValidId_ShouldReturnEmployee", async () =>
+            await AwaitAction(async () =>
             {
                 var workerId = await CreateEmployee(serviceApiTests: serviceApiTests, locationApiTests: locationApiTests);
 
@@ -176,7 +179,7 @@ namespace TestsAPI
             var serviceApiTests = new ServiceApiTests();
             var locationApiTests = new LocationApiTests();
 
-            await LogTest("Workers/{id}", "DeleteEmployee_ValidId_ShouldReturnSuccess", async () =>
+            await AwaitAction(async () =>
             {
                 var workerId = await CreateEmployee(serviceApiTests: serviceApiTests, locationApiTests: locationApiTests);
 

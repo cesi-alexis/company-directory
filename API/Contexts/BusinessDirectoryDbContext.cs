@@ -1,19 +1,14 @@
-﻿using Data.Entities;
+﻿using CompanyDirectory.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace CompanyDirectory.Contexts
+namespace CompanyDirectory.API.Contexts
 {
     // Contexte de base de données pour Entity Framework
-    public class BusinessDirectoryDbContext : DbContext
+    public class BusinessDirectoryDbContext(DbContextOptions<BusinessDirectoryDbContext> options) : DbContext(options)
     {
         public DbSet<Location> Locations { get; set; } = null!;
         public DbSet<Service> Services { get; set; } = null!;
         public DbSet<Worker> Workers { get; set; } = null!;
-
-        public BusinessDirectoryDbContext(DbContextOptions<BusinessDirectoryDbContext> options)
-            : base(options)
-        {
-        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
