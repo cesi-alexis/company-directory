@@ -15,5 +15,4 @@ namespace CompanyDirectory.Models.Entities
         // Relation avec les employés
         public ICollection<Worker> Workers { get; set; } = [];
     }
-
 }

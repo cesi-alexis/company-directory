@@ -15,6 +15,8 @@ namespace CompanyDirectory.API.Middlewares
 
         public async Task InvokeAsync(HttpContext context)
         {
+            _logger.LogInformation("LoggingMiddleware invoked for {Path}", context.Request.Path);
+
             var correlationId = Guid.NewGuid().ToString();
             context.Items["CorrelationId"] = correlationId;
 
@@ -22,11 +24,9 @@ namespace CompanyDirectory.API.Middlewares
 
             try
             {
-                // Log request
                 var requestLog = await LogRequestAsync(context, correlationId);
                 _logger.LogInformation("Request: {RequestLog}", requestLog);
 
-                // Capture response
                 var originalResponseBodyStream = context.Response.Body;
 
                 using var responseBody = new MemoryStream();
@@ -34,7 +34,6 @@ namespace CompanyDirectory.API.Middlewares
 
                 await _next(context); // Process request
 
-                // Log response
                 stopwatch.Stop();
                 var responseLog = await LogResponseAsync(context, correlationId, stopwatch.ElapsedMilliseconds);
                 _logger.LogInformation("Response: {ResponseLog}", responseLog);
@@ -45,7 +44,7 @@ namespace CompanyDirectory.API.Middlewares
             {
                 stopwatch.Stop();
                 _logger.LogError(ex, "An exception occurred. CorrelationId: {CorrelationId}", correlationId);
-                throw; // Let the exception propagate to other middleware or response utils
+                throw;
             }
         }
 

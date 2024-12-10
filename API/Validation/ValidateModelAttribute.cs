@@ -5,78 +5,77 @@ using System.Reflection;
 
 namespace CompanyDirectory.API.Validation
 {
+    /// <summary>
+    /// Attribut pour valider les modèles envoyés dans les requêtes HTTP.
+    /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
     public class ValidateModelAttribute(ILogger<ValidateModelAttribute> logger) : ActionFilterAttribute
     {
         private readonly ILogger<ValidateModelAttribute> _logger = logger;
 
+        /// <summary>
+        /// Méthode exécutée avant l'exécution d'une action pour valider les paramètres de la requête.
+        /// </summary>
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             try
             {
+                // Parcours des arguments envoyés dans la requête
                 foreach (var argument in context.ActionArguments)
                 {
+                    // Ignorer les arguments nuls
                     if (argument.Value == null)
-                        continue; // Ignore null values
+                        continue;
 
-                    // Vérifie si le paramètre est un ID nommé "id"
+                    // Validation spécifique pour les paramètres d'identifiants (ID)
                     if (argument.Key.Equals("id", StringComparison.OrdinalIgnoreCase) && argument.Value is int id)
                     {
-                        if (id <= 0)
+                        if (id <= 0) // Vérifie si l'ID est inférieur ou égal à 0
                         {
-                            _logger.LogWarning("Invalid ID detected for parameter '{ParameterName}': {Id}", argument.Key, id);
+                            _logger.LogWarning(Messages.InvalidId); // Journalise l'erreur
                             context.Result = new BadRequestObjectResult(new
                             {
-                                Message = $"Invalid ID provided for '{argument.Key}'. ID must be greater than 0.",
+                                Message = Messages.InvalidId,
                                 ProvidedValue = id
                             });
                             return;
                         }
                     }
 
-                    // Si l'objet est complexe, valider ses propriétés
+                    // Si l'argument est un objet complexe, valider ses propriétés
                     if (argument.Value.GetType().IsClass && argument.Value is not string)
                     {
                         ValidateObjectProperties(argument.Value, context);
                     }
                 }
 
-                // Vérification des erreurs de ModelState
+                // Vérification de l'état global des modèles
                 if (!context.ModelState.IsValid)
                 {
-                    if (context.ModelState == null)
-                    {
-                        throw new ArgumentNullException(nameof(context), "ModelState is null within the provided ActionExecutingContext.");
-                    }
-
                     var errorDetails = context.ModelState
                         .Where(x => x.Value?.Errors.Any() == true)
-                        .OrderBy(x => x.Key) // Tri par clé pour une cohérence dans la présentation
+                        .OrderBy(x => x.Key) // Trie les erreurs par clé
                         .ToDictionary(
                             kvp => kvp.Key,
                             kvp => kvp.Value!.Errors.Select(e => e.ErrorMessage).ToArray()
                         );
 
-                    _logger.LogWarning("Model validation failed for action {ActionName}. Errors: {Errors}",
-                                       context.ActionDescriptor.DisplayName,
-                                       errorDetails);
+                    _logger.LogWarning(Messages.ValidationFailed); // Journalise l'erreur de validation
 
                     context.Result = new BadRequestObjectResult(new
                     {
-                        Message = "Validation failed.",
+                        Message = Messages.ValidationFailed,
                         Errors = errorDetails
                     });
-                    return;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An unexpected error occurred during validation for action {ActionName}.",
-                                 context.ActionDescriptor.DisplayName);
-
+                // Gestion des exceptions inattendues
+                _logger.LogError(ex, Messages.UnexpectedError);
                 context.Result = new ObjectResult(new
                 {
-                    Message = "An unexpected error occurred during validation.",
+                    Message = Messages.UnexpectedError,
                     Details = ex.Message
                 })
                 {
@@ -85,6 +84,11 @@ namespace CompanyDirectory.API.Validation
             }
         }
 
+        /// <summary>
+        /// Valide les propriétés d'un objet complexe.
+        /// </summary>
+        /// <param name="obj">L'objet à valider.</param>
+        /// <param name="context">Le contexte de l'exécution de l'action.</param>
         private void ValidateObjectProperties(object obj, ActionExecutingContext context)
         {
             var properties = obj.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -95,35 +99,43 @@ namespace CompanyDirectory.API.Validation
                 {
                     var value = property.GetValue(obj);
 
-                    if (value is string strValue)
+                    if (value is string strValue) // Validation des propriétés de type chaîne
                     {
-                        // Validation des formats spécifiques
                         if (property.Name.EndsWith("Email", StringComparison.OrdinalIgnoreCase) && !Formats.IsValidEmail(strValue))
                         {
-                            ThrowValidationError(context, property.Name, "Invalid email format.", strValue);
+                            ThrowValidationError(context, property.Name, Messages.InvalidEmailFormat, strValue);
                         }
                         else if ((property.Name.EndsWith("Name", StringComparison.OrdinalIgnoreCase) || property.Name.Equals("City", StringComparison.OrdinalIgnoreCase))
                                  && !Formats.IsValidName(strValue))
                         {
-                            ThrowValidationError(context, property.Name, "Invalid name format. Name must only contain letters and valid characters.", strValue);
+                            ThrowValidationError(context, property.Name, Messages.InvalidNameFormat, strValue);
                         }
                         else if (property.Name.EndsWith("Phone", StringComparison.OrdinalIgnoreCase) && !Formats.IsValidPhoneNumber(strValue))
                         {
-                            ThrowValidationError(context, property.Name, "Invalid phone number format.", strValue);
+                            ThrowValidationError(context, property.Name, Messages.InvalidPhoneNumberFormat, strValue);
                         }
                     }
                 }
                 catch (Exception ex)
                 {
+                    // Journalise les erreurs rencontrées lors de la validation d'une propriété
                     _logger.LogWarning(ex, "Error validating property {PropertyName} of object {ObjectName}.", property.Name, obj.GetType().Name);
-                    // Continue la validation des autres propriétés
                 }
             }
         }
 
+        /// <summary>
+        /// Génère une erreur de validation pour une propriété spécifique.
+        /// </summary>
+        /// <param name="context">Le contexte de l'exécution de l'action.</param>
+        /// <param name="propertyName">Le nom de la propriété en erreur.</param>
+        /// <param name="message">Le message d'erreur.</param>
+        /// <param name="providedValue">La valeur fournie qui est invalide.</param>
         private void ThrowValidationError(ActionExecutingContext context, string propertyName, string message, string providedValue)
         {
-            _logger.LogWarning("Validation failed for property '{PropertyName}': {Message}. Provided value: {Value}", propertyName, message, providedValue);
+            // Journalise l'erreur avec un message statique et des paramètres
+            _logger.LogWarning("Validation failed for property '{PropertyName}' with value '{ProvidedValue}'. Error: {ErrorMessage}",
+                propertyName, providedValue, message);
 
             context.Result = new BadRequestObjectResult(new
             {
