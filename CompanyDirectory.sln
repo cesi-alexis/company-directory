@@ -17,9 +17,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{297D3BD5
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyDirectory.Client", "CompanyDirectory.Client\CompanyDirectory.Client.csproj", "{119DB4CE-C09D-4078-AEBC-461AD3C696FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompanyDirectory.Models", "Business\CompanyDirectory.Models\CompanyDirectory.Models.csproj", "{1AFB5A15-D3F6-4194-89F9-2E195C4EEEE0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyDirectory.Models", "Business\CompanyDirectory.Models\CompanyDirectory.Models.csproj", "{1AFB5A15-D3F6-4194-89F9-2E195C4EEEE0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompanyDirectory.Common", "Business\Common\CompanyDirectory.Common.csproj", "{E491D697-F33D-45E1-BA3F-A0CA45BFBE53}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyDirectory.Common", "Business\Common\CompanyDirectory.Common.csproj", "{E491D697-F33D-45E1-BA3F-A0CA45BFBE53}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

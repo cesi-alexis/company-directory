@@ -1,6 +1,6 @@
 ﻿using UIKit;
 
-namespace CompanyDirectory.Client
+namespace CompanyDirectory.Client.Platforms.MacCatalyst
 {
     public class Program
     {
