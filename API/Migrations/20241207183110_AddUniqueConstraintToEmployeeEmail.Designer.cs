@@ -60,7 +60,7 @@ namespace Data.Migrations
                     b.Property<int>("ServiceId")
                         .HasColumnType("int");
 
-                    b.Property<int>("LocationId")
+                    b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -70,7 +70,7 @@ namespace Data.Migrations
 
                     b.HasIndex("ServiceId");
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex("Id");
 
                     b.ToTable("Workers");
                 });
@@ -121,7 +121,7 @@ namespace Data.Migrations
 
                     b.HasOne("Data.Entities.Location", "Location")
                         .WithMany("Workers")
-                        .HasForeignKey("LocationId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

@@ -195,7 +195,7 @@ namespace CompanyDirectory.Tests.API
             var response = await _client.GetAsync($"{Endpoint}?fields={fieldsQuery}");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var result = await response.Content.ReadFromJsonAsync<ResponseViewModel<GetResponseViewModel<TModel>>>();
+            var result = await response.Content.ReadFromJsonAsync<ResponseViewModel<GetAllResponseViewModel<TModel>>>();
             Assert.NotNull(result);
             Assert.True(result!.Success);
 
@@ -211,27 +211,56 @@ namespace CompanyDirectory.Tests.API
         }
 
         /// <summary>
-        /// Teste la récupération d'un élément par son ID valide.
-        /// Vérifie que le statut HTTP 200 (OK) est renvoyé.
+        /// Teste si une entité existe avec un ID valide.
+        /// Vérifie que le statut HTTP 200 (OK) est renvoyé et que le champ "Exists" est true.
         /// </summary>
         [Fact]
-        public async Task GetById_ValidId_ShouldReturnModel()
+        public async Task ExistsById_ValidId_ShouldReturnTrue()
         {
-            var id = await CreateAndReturnIdAsync(); // Crée un élément et récupère son ID
-            var response = await _client.GetAsync($"{Endpoint}/{id}"); // Envoie une requête GET avec l'ID
+            // Crée un élément et récupère son ID
+            var id = await CreateAndReturnIdAsync();
 
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Vérifie que la réponse est 200 OK
+            // Envoie une requête GET à l'endpoint "exists-by-id" avec l'ID valide
+            var response = await _client.GetAsync($"{Endpoint}/exists-by-id/{id}");
+
+            // Vérifie que le statut HTTP est 200 OK
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            // Désérialise le contenu de la réponse
+            var content = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ResponseViewModel<ExistsResponseViewModel>>(content, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+            // Vérifie les propriétés de la réponse
+            Assert.NotNull(result);
+            Assert.True(result!.Success, "La réponse indique un échec.");
+            Assert.Equal(200, result.StatusCode);
+            Assert.NotNull(result.Data);
+            Assert.True(result.Data!.Exists, "L'entité devrait exister mais 'Exists' est false.");
         }
 
         /// <summary>
-        /// Teste la récupération d'un élément avec un ID inexistant.
-        /// Vérifie que le statut HTTP 404 (NotFound) est renvoyé.
+        /// Teste si une entité existe avec un ID inexistant.
+        /// Vérifie que le statut HTTP 200 (OK) est renvoyé et que le champ "Exists" est false.
         /// </summary>
         [Fact]
-        public async Task GetById_InvalidId_ShouldReturnNotFound()
+        public async Task ExistsById_InvalidId_ShouldReturnFalse()
         {
-            var response = await _client.GetAsync($"{Endpoint}/99999"); // Envoie une requête GET avec un ID inexistant
-            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode); // Vérifie que la réponse est 404 NotFound
+            // Envoie une requête GET à l'endpoint "exists-by-id" avec un ID inexistant
+            var response = await _client.GetAsync($"{Endpoint}/exists-by-id/99999");
+
+            // Vérifie que le statut HTTP est 200 OK
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            // Analyse le contenu de la réponse
+            var content = await response.Content.ReadAsStringAsync();
+            var result = JsonSerializer.Deserialize<ResponseViewModel<ExistsResponseViewModel>>(content);
+
+            // Vérifie que la réponse indique que l'entité n'existe pas
+            Assert.NotNull(result);
+            Assert.False(result!.Data!.Exists);
         }
 
         /// <summary>
@@ -256,7 +285,7 @@ namespace CompanyDirectory.Tests.API
             var response = await _client.GetAsync($"{Endpoint}?searchTerm={term}"); // Envoie une requête GET avec le terme de recherche
             Assert.Equal(HttpStatusCode.OK, response.StatusCode); // Vérifie que la réponse est 200 OK
 
-            var result = await response.Content.ReadFromJsonAsync<ResponseViewModel<GetResponseViewModel<TModel>>>();
+            var result = await response.Content.ReadFromJsonAsync<ResponseViewModel<GetAllResponseViewModel<TModel>>>();
             Assert.NotNull(result);
             Assert.True(result!.Success);
 
@@ -279,7 +308,7 @@ namespace CompanyDirectory.Tests.API
 
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode); // Vérifie que la réponse est 200 OK
 
-            var result = await response.Content.ReadFromJsonAsync<ResponseViewModel<GetResponseViewModel<TModel>>>();
+            var result = await response.Content.ReadFromJsonAsync<ResponseViewModel<GetAllResponseViewModel<TModel>>>();
             Assert.NotNull(result);
             Assert.False(result!.Success);
 
@@ -317,7 +346,7 @@ namespace CompanyDirectory.Tests.API
             var response = await _client.GetAsync($"{Endpoint}?searchTerm=term&pageNumber=1&pageSize=10"); // Envoie une requête GET
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-            var result = await response.Content.ReadFromJsonAsync<ResponseViewModel<GetResponseViewModel<TModel>>>();
+            var result = await response.Content.ReadFromJsonAsync<ResponseViewModel<GetAllResponseViewModel<TModel>>>();
             Assert.NotNull(result);
             Assert.True(result!.Success);
 
@@ -357,7 +386,7 @@ namespace CompanyDirectory.Tests.API
                 var response = await _client.GetAsync($"{Endpoint}?searchTerm={term}");
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
-                var result = await response.Content.ReadFromJsonAsync<ResponseViewModel<GetResponseViewModel<TModel>>>();
+                var result = await response.Content.ReadFromJsonAsync<ResponseViewModel<GetAllResponseViewModel<TModel>>>();
                 Assert.NotNull(result);
                 Assert.True(result!.Success);
 

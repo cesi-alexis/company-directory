@@ -45,7 +45,7 @@ namespace CompanyDirectory.API.Controllers
         /// <param name="query">Paramètres de pagination et de filtrage.</param>
         /// <returns>Réponse paginée contenant les localisations.</returns>
         [HttpGet]
-        public async Task<IActionResult> GetLocations([FromQuery] GetRequestViewModel query)
+        public async Task<IActionResult> GetLocations([FromQuery] GetAllRequestViewModel query)
         {
             return await ResponseUtils.HandleResponseAsync(async () =>
             {
@@ -62,7 +62,7 @@ namespace CompanyDirectory.API.Controllers
                         query.PageSize));
                 }
 
-                return new GetResponseViewModel<object>
+                return new GetAllResponseViewModel<object>
                 {
                     PageNumber = query.PageNumber,
                     PageSize = query.PageSize,
@@ -78,10 +78,25 @@ namespace CompanyDirectory.API.Controllers
         /// <param name="id">Identifiant de la localisation.</param>
         /// <returns>La localisation correspondant à l'identifiant.</returns>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetLocation(int id)
+        public async Task<IActionResult> GetLocation([FromQuery] GetRequestViewModel query)
         {
             return await ResponseUtils.HandleResponseAsync(async () =>
-                await _locationService.GetByIdAsync(id));
+                await _locationService.GetAsync(query.Id, query.Fields));
+        }
+
+        /// <summary>
+        /// Vérifie si une localisation existe pour un identifiant donné.
+        /// </summary>
+        /// <param name="id">Identifiant due la localisation.</param>
+        /// <returns>Un objet indiquant si la localisation existe ou non.</returns>
+        [HttpGet("exists-by-id/{id:int}")]
+        public async Task<IActionResult> LocationExistsById(int id)
+        {
+            return await ResponseUtils.HandleResponseAsync(async () =>
+                new ExistsResponseViewModel
+                {
+                    Exists = await _locationService.ExistsAsync(id)
+                });
         }
 
         /// <summary>

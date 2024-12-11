@@ -1,4 +1,5 @@
 ﻿using CompanyDirectory.Common;
+using System.Text.Json.Serialization;
 
 namespace CompanyDirectory.Models.ViewsModels.Responses
 {
@@ -26,12 +27,13 @@ namespace CompanyDirectory.Models.ViewsModels.Responses
         /// <summary>
         /// Objet de données renvoyé dans la réponse.
         /// </summary>
+        [JsonPropertyName("data")]
         public T? Data { get; set; }
 
         /// <summary>
         /// Informations additionnelles ou métadonnées pour enrichir la réponse.
         /// </summary>
-        public Dictionary<string, object> Metadata { get; set; } = [];
+        public Dictionary<string, object> Metadata { get; set; } = new();
 
         /// <summary>
         /// Crée une instance réussie de ResponseViewModel.

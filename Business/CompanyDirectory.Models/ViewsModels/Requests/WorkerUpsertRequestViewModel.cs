@@ -54,7 +54,7 @@ namespace CompanyDirectory.Models.ViewsModels.Requests
         /// <summary>
         /// Identifiant de la localisation associée à l'employé.
         /// </summary>
-        [Required(ErrorMessage = "Le champ 'LocationId' est obligatoire.")]
+        [Required(ErrorMessage = "Le champ 'Id' est obligatoire.")]
         public int LocationId { get; set; }
     }
 }
