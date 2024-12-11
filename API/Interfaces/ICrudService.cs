@@ -13,7 +13,7 @@ namespace CompanyDirectory.API.Interfaces
         /// <summary>
         /// Récupère une liste filtrée et paginée d'entités.
         /// </summary>
-        Task<(IEnumerable<Object>? Items, int TotalCount)> GetFilteredAsync(
+        Task<(IEnumerable<object>? Items, int TotalCount)> GetFilteredAsync(
             string? searchTerm = null,
             string? fields = null,
             int pageNumber = 1,
@@ -22,7 +22,7 @@ namespace CompanyDirectory.API.Interfaces
         /// <summary>
         /// Récupère une entité par son identifiant numérique.
         /// </summary>
-        Task<T?> GetByIdAsync(int id);
+        Task<object?> GetAsync(int id, string? fields);
 
         /// <summary>
         /// Vérifie si une entité existe par son identifiant numérique.

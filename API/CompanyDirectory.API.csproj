@@ -21,6 +21,7 @@
     <PackageReference Include="Newtonsoft.Json.Schema" Version="4.0.1" />
     <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="7.1.0" />
+    <PackageReference Include="System.Linq.Dynamic.Core" Version="1.5.0" />
   </ItemGroup>
 
   <ItemGroup>

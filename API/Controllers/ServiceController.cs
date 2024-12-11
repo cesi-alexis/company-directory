@@ -45,7 +45,7 @@ namespace CompanyDirectory.API.Controllers
         /// <param name="query">Paramètres de pagination et de filtrage.</param>
         /// <returns>Réponse paginée contenant les services.</returns>
         [HttpGet]
-        public async Task<IActionResult> GetServices([FromQuery] GetRequestViewModel query)
+        public async Task<IActionResult> GetServices([FromQuery] GetAllRequestViewModel query)
         {
             return await ResponseUtils.HandleResponseAsync(async () =>
             {
@@ -62,7 +62,7 @@ namespace CompanyDirectory.API.Controllers
                         query.PageSize));
                 }
 
-                return new GetResponseViewModel<object>
+                return new GetAllResponseViewModel<object>
                 {
                     PageNumber = query.PageNumber,
                     PageSize = query.PageSize,
@@ -78,10 +78,25 @@ namespace CompanyDirectory.API.Controllers
         /// <param name="id">Identifiant du service.</param>
         /// <returns>Le service correspondant à l'identifiant.</returns>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetService(int id)
+        public async Task<IActionResult> GetService([FromQuery] GetRequestViewModel query)
         {
             return await ResponseUtils.HandleResponseAsync(async () =>
-                await _serviceService.GetByIdAsync(id));
+                await _serviceService.GetAsync(query.Id, query.Fields));
+        }
+
+        /// <summary>
+        /// Vérifie si un service existe pour un identifiant donné.
+        /// </summary>
+        /// <param name="id">Identifiant du service.</param>
+        /// <returns>Un objet indiquant si le service existe ou non.</returns>
+        [HttpGet("exists-by-id/{id:int}")]
+        public async Task<IActionResult> ServiceExistsById(int id)
+        {
+            return await ResponseUtils.HandleResponseAsync(async () =>
+                new ExistsResponseViewModel
+                {
+                    Exists = await _serviceService.ExistsAsync(id)
+                });
         }
 
         /// <summary>

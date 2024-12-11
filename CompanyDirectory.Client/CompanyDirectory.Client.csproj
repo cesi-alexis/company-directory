@@ -62,4 +62,10 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\Business\Common\CompanyDirectory.Common.csproj" />
+	  <ProjectReference Include="..\Business\CompanyDirectory.Models\CompanyDirectory.Models.csproj" />
+	  <ProjectReference Include="..\CompanyDirectory.SDK\CompanyDirectory.SDK.csproj" />
+	</ItemGroup>
+
 </Project>

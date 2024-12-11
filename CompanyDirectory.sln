@@ -21,6 +21,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyDirectory.Models", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyDirectory.Common", "Business\Common\CompanyDirectory.Common.csproj", "{E491D697-F33D-45E1-BA3F-A0CA45BFBE53}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompanyDirectory.SDK", "CompanyDirectory.SDK\CompanyDirectory.SDK.csproj", "{BC9AC7D5-BACA-40C0-A2B4-ACADED58513C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CompanyDirectory.Tests.SDK", "Tests\SDK\CompanyDirectory.Tests.SDK.csproj", "{3082F324-6059-433D-A181-F79F516C6E92}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +65,18 @@ Global
 		{E491D697-F33D-45E1-BA3F-A0CA45BFBE53}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E491D697-F33D-45E1-BA3F-A0CA45BFBE53}.TestBeforeRun|Any CPU.ActiveCfg = Debug|Any CPU
 		{E491D697-F33D-45E1-BA3F-A0CA45BFBE53}.TestBeforeRun|Any CPU.Build.0 = Debug|Any CPU
+		{BC9AC7D5-BACA-40C0-A2B4-ACADED58513C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC9AC7D5-BACA-40C0-A2B4-ACADED58513C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC9AC7D5-BACA-40C0-A2B4-ACADED58513C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC9AC7D5-BACA-40C0-A2B4-ACADED58513C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC9AC7D5-BACA-40C0-A2B4-ACADED58513C}.TestBeforeRun|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC9AC7D5-BACA-40C0-A2B4-ACADED58513C}.TestBeforeRun|Any CPU.Build.0 = Debug|Any CPU
+		{3082F324-6059-433D-A181-F79F516C6E92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3082F324-6059-433D-A181-F79F516C6E92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3082F324-6059-433D-A181-F79F516C6E92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3082F324-6059-433D-A181-F79F516C6E92}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3082F324-6059-433D-A181-F79F516C6E92}.TestBeforeRun|Any CPU.ActiveCfg = Debug|Any CPU
+		{3082F324-6059-433D-A181-F79F516C6E92}.TestBeforeRun|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -71,6 +87,8 @@ Global
 		{119DB4CE-C09D-4078-AEBC-461AD3C696FF} = {70A6B82A-D02C-4BD6-B26C-87B2B1CA50DA}
 		{1AFB5A15-D3F6-4194-89F9-2E195C4EEEE0} = {224633BF-49EB-4A3A-AC0C-132C2817C8C5}
 		{E491D697-F33D-45E1-BA3F-A0CA45BFBE53} = {224633BF-49EB-4A3A-AC0C-132C2817C8C5}
+		{BC9AC7D5-BACA-40C0-A2B4-ACADED58513C} = {224633BF-49EB-4A3A-AC0C-132C2817C8C5}
+		{3082F324-6059-433D-A181-F79F516C6E92} = {297D3BD5-A5F9-4E55-9ADE-769F41C425BC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A2E79C59-DB28-4C0E-A1BD-F23057C2ECAB}

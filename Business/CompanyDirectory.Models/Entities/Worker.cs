@@ -40,7 +40,7 @@ namespace CompanyDirectory.Models.Entities
         [Required]
         public int LocationId { get; set; }
 
-        [ForeignKey("LocationId")]
+        [ForeignKey("Id")]
         public Location? Location { get; set; } = null!;
     }
 }

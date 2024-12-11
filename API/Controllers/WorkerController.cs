@@ -46,17 +46,23 @@ namespace CompanyDirectory.API.Controllers
         }
 
         /// <summary>
-        /// Récupère une liste paginée d'employés avec des champs optionnels et un terme de recherche.
+        /// Récupère une liste paginée d'employés avec des champs dynamiques et des filtres optionnels.
         /// </summary>
-        /// <param name="query">Paramètres de pagination et de filtrage.</param>
+        /// <param name="query">Paramètres de recherche, pagination, et filtres.</param>
         /// <returns>Réponse paginée contenant les employés.</returns>
         [HttpGet]
-        public async Task<IActionResult> GetWorkers([FromQuery] GetRequestViewModel query)
+        public async Task<IActionResult> GetWorkers([FromQuery] GetAllRequestViewModel query)
         {
             return await ResponseUtils.HandleResponseAsync(async () =>
             {
+                // Appelle le service pour récupérer les employés avec les filtres spécifiés
                 var (workers, totalCount) = await _workerService.GetFilteredAsync(
-                    query.SearchTerm, query.Fields, query.PageNumber, query.PageSize);
+                    searchTerm: query.SearchTerm,
+                    fields: query.Fields,
+                    pageNumber: query.PageNumber,
+                    pageSize: query.PageSize,
+                    locationId: query.LocationId,
+                    serviceId: query.ServiceId);
 
                 if (workers == null || !workers.Any())
                 {
@@ -68,7 +74,7 @@ namespace CompanyDirectory.API.Controllers
                         query.PageSize));
                 }
 
-                return new GetResponseViewModel<object>
+                return new GetAllResponseViewModel<object>
                 {
                     PageNumber = query.PageNumber,
                     PageSize = query.PageSize,
@@ -79,15 +85,49 @@ namespace CompanyDirectory.API.Controllers
         }
 
         /// <summary>
-        /// Récupère un employé spécifique par son identifiant.
+        /// Récupère un employé spécifique par son identifiant avec des filtres optionnels sur la localisation et le service.
         /// </summary>
-        /// <param name="id">Identifiant de l'employé.</param>
-        /// <returns>L'employé correspondant à l'identifiant.</returns>
+        /// <param name="query">Modèle contenant les paramètres de la requête.</param>
+        /// <returns>L'employé correspondant aux critères spécifiés.</returns>
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetWorker(int id)
+        public async Task<IActionResult> GetWorker([FromQuery] GetRequestViewModel query)
         {
             return await ResponseUtils.HandleResponseAsync(async () =>
-                await _workerService.GetByIdAsync(id));
+                await _workerService.GetAsync(query.Id, query.Fields));
+        }
+
+        /// <summary>
+        /// Récupère un employé spécifique par son identifiant avec des filtres optionnels sur la localisation et le service.
+        /// </summary>
+        /// <param name="id">Identifiant unique de l'employé.</param>
+        /// <param name="fields">Liste des champs spécifiques à inclure dans la réponse (optionnel).</param>
+        /// <param name="locationId">Identifiant de la localisation pour filtrer (optionnel).</param>
+        /// <param name="serviceId">Identifiant du service pour filtrer (optionnel).</param>
+        /// <returns>Une réponse contenant l'employé correspondant aux critères spécifiés ou un message d'erreur si non trouvé.</returns>
+        [HttpGet("Localized/{id}")]
+        public async Task<IActionResult> GetLocalizedWorker(
+            [FromRoute] int id,
+            [FromQuery] string? fields = null,
+            [FromQuery] int? locationId = null,
+            [FromQuery] int? serviceId = null)
+        {
+            return await ResponseUtils.HandleResponseAsync(async () =>
+                await _workerService.GetAsync(id, fields, locationId, serviceId));
+        }
+
+        /// <summary>
+        /// Vérifie si un emmpoyé existe pour un identifiant donné.
+        /// </summary>
+        /// <param name="id">Identifiant de l'employé.</param>
+        /// <returns>Un objet indiquant si l'employé existe ou non.</returns>
+        [HttpGet("exists-by-id/{id:int}")]
+        public async Task<IActionResult> WorkerExistsById(int id)
+        {
+            return await ResponseUtils.HandleResponseAsync(async () =>
+                new ExistsResponseViewModel
+                {
+                    Exists = await _workerService.ExistsAsync(id)
+                });
         }
 
         /// <summary>

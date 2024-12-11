@@ -1,12 +1,14 @@
-﻿using CompanyDirectory.Common;
+﻿using CompanyDirectory.API.Contexts;
+using CompanyDirectory.API.Interfaces;
+using CompanyDirectory.API.Utils;
+using CompanyDirectory.Common;
 using CompanyDirectory.Common.Exceptions;
-using CompanyDirectory.API.Contexts;
 using CompanyDirectory.Models.Entities;
+using CompanyDirectory.Models.ViewsModels.Responses;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using CompanyDirectory.API.Utils;
-using CompanyDirectory.API.Interfaces;
+using System.Linq.Dynamic.Core;
 
 namespace CompanyDirectory.API.Services
 {
@@ -40,69 +42,84 @@ namespace CompanyDirectory.API.Services
         }
 
         /// <summary>
-        /// Récupère une liste paginée de localisations avec des champs optionnels et un terme de recherche.
+        /// Récupère une liste paginée de localisations avec des champs dynamiques et des critères de recherche.
         /// </summary>
-        public async Task<(IEnumerable<Object>? Items, int TotalCount)> GetFilteredAsync(
+        /// <param name="searchTerm">Critère de recherche à appliquer sur le nom de la ville.</param>
+        /// <param name="fields">Champs spécifiques à inclure dans la réponse, séparés par des virgules.</param>
+        /// <param name="pageNumber">Numéro de la page.</param>
+        /// <param name="pageSize">Nombre d'éléments par page.</param>
+        /// <returns>Une liste paginée de modèles <see cref="LocationGetResponseViewModel"/>.</returns>
+        public async Task<(IEnumerable<object>? Items, int TotalCount)> GetFilteredAsync(
             string? searchTerm = null,
             string? fields = null,
             int pageNumber = 1,
             int pageSize = Constants.MAX_PAGES)
         {
-            // Validation des paramètres de pagination
             if (pageNumber <= 0 || pageSize <= 0)
                 throw new ValidationException(Messages.PaginationInvalid);
 
-            // Génération de la clé de cache basée sur les paramètres
-            var cacheKey = $"Locations_{searchTerm}_{fields}_{pageNumber}_{pageSize}";
-            if (_cache.TryGetValue(cacheKey, out (IEnumerable<object> Locations, int TotalCount) cachedResult))
-            {
-                return cachedResult;
-            }
-
-            // Préparation de la requête avec filtrage basé sur le terme de recherche
             var query = _context.Locations.AsQueryable();
 
-            if (searchTerm != null)
+            // Applique un filtre si un terme de recherche est fourni
+            if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                if(string.IsNullOrWhiteSpace(searchTerm))
-                {
-                    throw new ValidationException(string.Format(Messages.InvalidSearchTerms, searchTerm));
-                }
-
                 query = query.Where(l => EF.Functions.Like(l.City, $"%{searchTerm}%"));
             }
 
-            // Utilisation de ServiceUtils pour appliquer le filtrage et la pagination
-            var result = await ServiceUtils.GetFilteredAsync(query, fields, pageNumber, pageSize);
+            // Applique un tri par défaut si nécessaire
+            query = query.OrderBy(l => l.Id);
 
-            // Mise en cache des résultats pour améliorer les performances
-            _cache.Set(cacheKey, result, TimeSpan.FromMinutes(_cacheSettings.DefaultCacheDuration));
+            var totalCount = await query.CountAsync();
 
-            return result;
+            if (!string.IsNullOrWhiteSpace(fields))
+            {
+                // Sélection dynamique avec System.Linq.Dynamic.Core
+                var projectedQuery = query.Select($"new ({fields})");
+
+                // Retourne les champs dynamiques
+                var items = await projectedQuery.ToDynamicListAsync();
+                return (items, totalCount);
+            }
+
+            // Projection complète si aucun champ spécifique n'est demandé
+            var fullItems = await query.Skip((pageNumber - 1) * pageSize)
+                                       .Take(pageSize)
+                                       .Select(l => new LocationGetResponseViewModel
+                                       {
+                                           Id = l.Id,
+                                           City = l.City
+                                       }).ToListAsync();
+
+            return (fullItems, totalCount);
         }
 
+
         /// <summary>
-        /// Récupère une localisation spécifique par son identifiant.
+        /// Récupère une localisation spécifique par son identifiant avec des champs dynamiques.
         /// </summary>
-        public async Task<Location?> GetByIdAsync(int id)
+        /// <param name="id">Identifiant unique de la localisation.</param>
+        /// <param name="fields">Champs spécifiques à inclure dans la réponse, séparés par des virgules.</param>
+        /// <returns>Un modèle <see cref="LocationGetResponseViewModel"/> avec les champs spécifiés ou null si non trouvé.</returns>
+        public async Task<object?> GetAsync(int id, string? fields = null)
         {
             if (id <= 0)
                 throw new ValidationException(Messages.InvalidId);
 
-            var cacheKey = $"Location_{id}";
-            if (_cache.TryGetValue(cacheKey, out Location? cachedLocation))
+            var query = _context.Locations.Where(l => l.Id == id);
+
+            if (!string.IsNullOrWhiteSpace(fields))
             {
-                if (cachedLocation is not null)
-                    return cachedLocation;
+                // Projection dynamique avec sélection des champs
+                var projectedQuery = query.Select($"new CompanyDirectory.Models.ViewsModels.Responses.LocationGetResponseViewModel({fields})");
+                return await projectedQuery.Cast<LocationGetResponseViewModel>().FirstOrDefaultAsync();
             }
 
-            var location = await _context.Locations
-                .Include(l => l.Workers)
-                .FirstOrDefaultAsync(l => l.Id == id)
-                ?? throw new NotFoundException(string.Format(Messages.LocationNotFound, id));
-
-            _cache.Set(cacheKey, location, TimeSpan.FromMinutes(_cacheSettings.DefaultCacheDuration));
-            return location;
+            // Projection complète si aucun champ spécifique n'est demandé
+            return await query.Select(l => new LocationGetResponseViewModel
+            {
+                Id = l.Id,
+                City = l.City
+            }).FirstOrDefaultAsync();
         }
 
         /// <summary>

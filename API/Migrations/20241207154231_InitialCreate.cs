@@ -75,7 +75,7 @@ namespace Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Workers_LocationId",
                 table: "Workers",
-                column: "LocationId");
+                column: "Id");
         }
 
         /// <inheritdoc />

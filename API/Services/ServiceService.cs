@@ -1,12 +1,13 @@
-﻿using CompanyDirectory.Common;
+﻿using CompanyDirectory.API.Contexts;
+using CompanyDirectory.API.Interfaces;
+using CompanyDirectory.Common;
 using CompanyDirectory.Common.Exceptions;
-using CompanyDirectory.API.Contexts;
-using CompanyDirectory.API.Utils;
 using CompanyDirectory.Models.Entities;
+using CompanyDirectory.Models.ViewsModels.Responses;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using CompanyDirectory.API.Interfaces;
+using System.Linq.Dynamic.Core;
 
 namespace CompanyDirectory.API.Services
 {
@@ -40,69 +41,83 @@ namespace CompanyDirectory.API.Services
         }
 
         /// <summary>
-        /// Récupère une liste paginée de services avec des champs optionnels et un terme de recherche.
+        /// Récupère une liste paginée de services avec des champs dynamiques et des critères de recherche.
         /// </summary>
+        /// <param name="searchTerm">Critère de recherche à appliquer sur le nom du service.</param>
+        /// <param name="fields">Champs spécifiques à inclure dans la réponse, séparés par des virgules.</param>
+        /// <param name="pageNumber">Numéro de la page.</param>
+        /// <param name="pageSize">Nombre d'éléments par page.</param>
+        /// <returns>Une liste paginée de modèles <see cref="ServiceGetResponseViewModel"/>.</returns>
         public async Task<(IEnumerable<object>? Items, int TotalCount)> GetFilteredAsync(
             string? searchTerm = null,
             string? fields = null,
             int pageNumber = 1,
             int pageSize = Constants.MAX_PAGES)
         {
-            // Validation des paramètres de pagination
             if (pageNumber <= 0 || pageSize <= 0)
                 throw new ValidationException(Messages.PaginationInvalid);
 
-            // Génération de la clé de cache basée sur les paramètres
-            var cacheKey = $"Services_{searchTerm}_{fields}_{pageNumber}_{pageSize}";
-            if (_cache.TryGetValue(cacheKey, out (IEnumerable<object> Services, int TotalCount) cachedResult))
-            {
-                return cachedResult;
-            }
-
-            // Préparation de la requête avec filtrage basé sur le terme de recherche
             var query = _context.Services.AsQueryable();
 
-            if (searchTerm != null)
+            // Applique un filtre si un terme de recherche est fourni
+            if (!string.IsNullOrWhiteSpace(searchTerm))
             {
-                if (string.IsNullOrWhiteSpace(searchTerm))
-                {
-                    throw new ValidationException(string.Format(Messages.InvalidSearchTerms, searchTerm ?? "null"));
-                }
-
                 query = query.Where(s => EF.Functions.Like(s.Name, $"%{searchTerm}%"));
             }
 
-            // Utilisation de ServiceUtils pour appliquer le filtrage et la pagination
-            var result = await ServiceUtils.GetFilteredAsync(query, fields, pageNumber, pageSize);
+            // Applique un tri par défaut si nécessaire
+            query = query.OrderBy(l => l.Id);
 
-            // Mise en cache des résultats pour améliorer les performances
-            _cache.Set(cacheKey, result, TimeSpan.FromMinutes(_cacheSettings.DefaultCacheDuration));
+            var totalCount = await query.CountAsync();
 
-            return result;
+            if (!string.IsNullOrWhiteSpace(fields))
+            {
+                // Sélection dynamique avec System.Linq.Dynamic.Core
+                var projectedQuery = query.Select($"new ({fields})");
+
+                // Retourne les champs dynamiques
+                var items = await projectedQuery.ToDynamicListAsync();
+                return (items, totalCount);
+            }
+
+            // Projection complète si aucun champ spécifique n'est demandé
+            var fullItems = await query.Skip((pageNumber - 1) * pageSize)
+                                       .Take(pageSize)
+                                       .Select(s => new ServiceGetResponseViewModel
+                                       {
+                                           Id = s.Id,
+                                           Name = s.Name
+                                       }).ToListAsync();
+
+            return (fullItems, totalCount);
         }
 
         /// <summary>
-        /// Récupère un service spécifique par son identifiant.
+        /// Récupère un service spécifique par son identifiant avec des champs dynamiques.
         /// </summary>
-        public async Task<Service?> GetByIdAsync(int id)
+        /// <param name="id">Identifiant unique du service.</param>
+        /// <param name="fields">Champs spécifiques à inclure dans la réponse, séparés par des virgules.</param>
+        /// <returns>Un modèle <see cref="ServiceGetResponseViewModel"/> avec les champs spécifiés ou null si non trouvé.</returns>
+        public async Task<object?> GetAsync(int id, string? fields = null)
         {
             if (id <= 0)
                 throw new ValidationException(Messages.InvalidId);
 
-            var cacheKey = $"Service_{id}";
-            if (_cache.TryGetValue(cacheKey, out Service? cachedService))
+            var query = _context.Services.Where(s => s.Id == id);
+
+            if (!string.IsNullOrWhiteSpace(fields))
             {
-                if (cachedService is not null)
-                    return cachedService;
+                // Projection dynamique avec sélection des champs
+                var projectedQuery = query.Select($"new CompanyDirectory.Models.ViewsModels.Responses.ServiceGetResponseViewModel({fields})");
+                return await projectedQuery.Cast<ServiceGetResponseViewModel>().FirstOrDefaultAsync();
             }
 
-            var service = await _context.Services
-                .Include(s => s.Workers) // Inclut les employés liés
-                .FirstOrDefaultAsync(s => s.Id == id)
-                ?? throw new NotFoundException(string.Format(Messages.ServiceNotFound, id));
-
-            _cache.Set(cacheKey, service, TimeSpan.FromMinutes(_cacheSettings.DefaultCacheDuration));
-            return service;
+            // Projection complète si aucun champ spécifique n'est demandé
+            return await query.Select(s => new ServiceGetResponseViewModel
+            {
+                Id = s.Id,
+                Name = s.Name
+            }).FirstOrDefaultAsync();
         }
 
         /// <summary>

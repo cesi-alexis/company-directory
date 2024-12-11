@@ -1,4 +1,5 @@
 ﻿using CompanyDirectory.Common;
+using System.Text.Json.Serialization;
 
 namespace CompanyDirectory.Models.ViewsModels.Responses
 {
@@ -6,7 +7,7 @@ namespace CompanyDirectory.Models.ViewsModels.Responses
     /// Modèle représentant une réponse paginée pour les requêtes GET.
     /// </summary>
     /// <typeparam name="T">Le type des éléments contenus dans la réponse.</typeparam>
-    public class GetResponseViewModel<T>
+    public class GetAllResponseViewModel<T>
     {
         /// <summary>
         /// Le numéro de la page actuelle.
@@ -24,13 +25,14 @@ namespace CompanyDirectory.Models.ViewsModels.Responses
         public int TotalCount { get; set; }
 
         /// <summary>
-        /// Le nombre total de pages disponibles, calculé en fonction de <see cref="TotalCount"/> et <see cref="PageSize"/>.
+        /// Le nombre total de pages disponibles.
         /// </summary>
         public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
 
         /// <summary>
         /// La liste des éléments correspondant à la page actuelle.
         /// </summary>
-        public IEnumerable<T> Items { get; set; } = [];
+        [JsonPropertyName("items")]
+        public IEnumerable<T> Items { get; set; } = Array.Empty<T>();
     }
 }

@@ -89,7 +89,7 @@ namespace Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("LocationId")
+                    b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.Property<string>("PhoneFixed")
@@ -110,7 +110,7 @@ namespace Data.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.HasIndex("LocationId");
+                    b.HasIndex("Id");
 
                     b.HasIndex("ServiceId");
 
@@ -121,7 +121,7 @@ namespace Data.Migrations
                 {
                     b.HasOne("Data.Entities.Location", "Location")
                         .WithMany("Workers")
-                        .HasForeignKey("LocationId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

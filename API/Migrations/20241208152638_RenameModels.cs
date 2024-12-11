@@ -33,7 +33,7 @@ namespace Data.Migrations
             migrationBuilder.AddForeignKey(
                 name: "FK_Workers_Locations_LocationId",
                 table: "Workers",
-                column: "LocationId",
+                column: "Id",
                 principalTable: "Locations",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Restrict);
@@ -69,7 +69,7 @@ namespace Data.Migrations
             migrationBuilder.AddForeignKey(
                 name: "FK_Workers_Locations_LocationId",
                 table: "Workers",
-                column: "LocationId",
+                column: "Id",
                 principalTable: "Locations",
                 principalColumn: "Id",
                 onDelete: ReferentialAction.Cascade);
